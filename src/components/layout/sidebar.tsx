@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import {
   LayoutDashboard,
   FolderKanban,
@@ -77,7 +78,10 @@ export function Sidebar({ role = "CLIENT" }: SidebarProps) {
         </div>
 
         <div className="border-t pt-4 space-y-1">
-          <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+          <button
+            onClick={() => signOut({ callbackUrl: "/" })}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          >
             <LogOut className="h-5 w-5" />
             Tancar sessió
           </button>
