@@ -21,6 +21,11 @@ const updateProjectSchema = z.object({
   locale: z.enum(["en", "ca", "es"]).optional(),
 });
 
+// NOTE: this endpoint serves the public portfolio. Active projects are visible
+// to anyone; inactive ones are admin-only. Per-client scoped access (a client
+// seeing only their own projects) lives at a separate endpoint that does NOT
+// exist yet — when we implement the real client dashboard, the route will be
+// `/api/dashboard/projects/[id]` and will enforce ownership there.
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
