@@ -1,18 +1,87 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UserCircle, Save } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+interface ProfileData {
+  name: string;
+  email: string;
+  phone: string;
+  company: string;
+  role?: string;
+  createdAt?: string;
+}
+
 export default function PerfilPage() {
-  const [profile, setProfile] = useState({
-    name: "Oscar Rovira",
-    email: "oscar.rovira@auratech.cat",
-    phone: "+34 93 XXX XX XX",
-    company: "Auratech",
+  const [profile, setProfile] = useState<ProfileData>({
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
   });
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [profileState, setProfileState] = useState<{
+    saving: boolean;
+    message?: string;
+    error?: string;
+  }>({ saving: false });
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) return;
+        if (data?.error) {
+          setProfileState({ saving: false, error: data.error });
+        } else {
+          setProfile({
+            name: data.name || "",
+            email: data.email || "",
+            phone: data.phone || "",
+            company: data.company || "",
+            role: data.role,
+            createdAt: data.createdAt,
+          });
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setProfileState({ saving: false, error: "No s'ha pogut carregar el perfil" });
+      })
+      .finally(() => {
+        if (!cancelled) setProfileLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function handleSaveProfile() {
+    setProfileState({ saving: true });
+    try {
+      const res = await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: profile.name,
+          phone: profile.phone || null,
+          company: profile.company || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setProfileState({ saving: false, error: data.error || "Error desconegut" });
+        return;
+      }
+      setProfileState({ saving: false, message: "Canvis desats" });
+      setTimeout(() => setProfileState((s) => ({ ...s, message: undefined })), 3000);
+    } catch {
+      setProfileState({ saving: false, error: "Error de xarxa" });
+    }
+  }
 
   // Password change state
   const [pwd, setPwd] = useState({ current: "", next: "", confirm: "" });
@@ -64,12 +133,13 @@ export default function PerfilPage() {
             <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <UserCircle className="h-12 w-12 text-primary" />
             </div>
-            <h3 className="font-semibold text-lg">{profile.name}</h3>
-            <p className="text-sm text-muted-foreground">{profile.company}</p>
-            <p className="text-xs text-muted-foreground mt-1">Client des de novembre 2025</p>
-            <Button variant="outline" className="mt-4 w-full" size="sm">
-              Canviar foto
-            </Button>
+            <h3 className="font-semibold text-lg">{profile.name || "—"}</h3>
+            <p className="text-sm text-muted-foreground">{profile.company || ""}</p>
+            {profile.role && (
+              <p className="font-mono text-xs uppercase tracking-wider text-accent mt-1">
+                {profile.role}
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -85,6 +155,7 @@ export default function PerfilPage() {
                 <Input
                   value={profile.name}
                   onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                  disabled={profileLoading}
                 />
               </div>
               <div>
@@ -92,14 +163,20 @@ export default function PerfilPage() {
                 <Input
                   type="email"
                   value={profile.email}
-                  onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                  readOnly
+                  disabled
+                  className="bg-muted/40"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  No es pot modificar des d&apos;aquí.
+                </p>
               </div>
               <div>
                 <label className="text-sm font-medium mb-1.5 block">Telèfon</label>
                 <Input
                   value={profile.phone}
                   onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                  disabled={profileLoading}
                 />
               </div>
               <div>
@@ -107,13 +184,25 @@ export default function PerfilPage() {
                 <Input
                   value={profile.company}
                   onChange={(e) => setProfile({ ...profile, company: e.target.value })}
+                  disabled={profileLoading}
                 />
               </div>
             </div>
-            <Button>
-              <Save className="mr-2 h-4 w-4" />
-              Desar canvis
-            </Button>
+            <div className="flex items-center gap-4">
+              <Button
+                onClick={handleSaveProfile}
+                disabled={profileLoading || profileState.saving}
+              >
+                <Save className="mr-2 h-4 w-4" />
+                {profileState.saving ? "Desant..." : "Desar canvis"}
+              </Button>
+              {profileState.message && (
+                <span className="text-sm text-green-600">{profileState.message}</span>
+              )}
+              {profileState.error && (
+                <span className="text-sm text-destructive">{profileState.error}</span>
+              )}
+            </div>
           </CardContent>
         </Card>
 
