@@ -23,7 +23,14 @@ import { cn } from "@/lib/utils";
 
 const ADMIN_ROLES = ["SUPERADMIN", "ADMIN", "EDITOR"];
 
-const clientNav = [
+type NavItem = {
+  name: string;
+  href: string;
+  icon: typeof LayoutDashboard;
+  badgeKey?: "contact";
+};
+
+const clientNav: NavItem[] = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Projectes", href: "/dashboard/projectes", icon: FolderKanban },
   { name: "Factures", href: "/dashboard/factures", icon: Receipt },
@@ -31,14 +38,14 @@ const clientNav = [
   { name: "Perfil", href: "/dashboard/perfil", icon: UserCircle },
 ];
 
-const adminNav = [
+const adminNav: NavItem[] = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "Pàgines", href: "/admin/pagines", icon: FileText },
   { name: "Blog", href: "/admin/blog", icon: PenSquare },
   { name: "Serveis", href: "/admin/serveis", icon: Wrench },
   { name: "Projectes", href: "/admin/projectes", icon: FolderKanban },
   { name: "Media", href: "/admin/media", icon: Image },
-  { name: "Contacte", href: "/admin/contacte", icon: Mail },
+  { name: "Contacte", href: "/admin/contacte", icon: Mail, badgeKey: "contact" },
   { name: "Clients", href: "/admin/clients", icon: Users },
   { name: "Configuració", href: "/admin/configuracio", icon: Settings },
 ];
@@ -46,9 +53,14 @@ const adminNav = [
 interface SidebarProps {
   role?: "ADMIN" | "CLIENT";
   userRole?: string;
+  badges?: Partial<Record<"contact", number>>;
 }
 
-export function Sidebar({ role = "CLIENT", userRole }: SidebarProps) {
+export function Sidebar({
+  role = "CLIENT",
+  userRole,
+  badges = {},
+}: SidebarProps) {
   const pathname = usePathname();
   const nav = role === "ADMIN" ? adminNav : clientNav;
   const isPrivileged = !!userRole && ADMIN_ROLES.includes(userRole);
@@ -65,6 +77,9 @@ export function Sidebar({ role = "CLIENT", userRole }: SidebarProps) {
             const isActive = item.href === "/admin" || item.href === "/dashboard"
               ? pathname === item.href
               : pathname === item.href || pathname.startsWith(item.href + "/");
+            const badgeCount = item.badgeKey
+              ? badges[item.badgeKey as "contact"] ?? 0
+              : 0;
             return (
               <Link
                 key={item.name}
@@ -77,7 +92,19 @@ export function Sidebar({ role = "CLIENT", userRole }: SidebarProps) {
                 )}
               >
                 <item.icon className="h-5 w-5" />
-                {item.name}
+                <span className="flex-1">{item.name}</span>
+                {badgeCount > 0 && (
+                  <span
+                    className={cn(
+                      "inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-[11px] font-medium",
+                      isActive
+                        ? "bg-primary-foreground text-primary"
+                        : "bg-accent text-accent-foreground",
+                    )}
+                  >
+                    {badgeCount > 99 ? "99+" : badgeCount}
+                  </span>
+                )}
               </Link>
             );
           })}

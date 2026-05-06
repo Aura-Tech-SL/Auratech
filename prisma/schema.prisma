@@ -247,7 +247,11 @@ model ContactSubmission {
   subject   String
   message   String
   isRead    Boolean  @default(false)
+  notes     String?  @db.Text
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([isRead, createdAt])
 }
 
 // Generic rate-limit counter, keyed by an arbitrary string (e.g. "login:1.2.3.4").
