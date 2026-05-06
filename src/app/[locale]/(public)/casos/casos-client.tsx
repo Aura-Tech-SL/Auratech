@@ -16,6 +16,7 @@ const casesData = [
   { key: "c2", image: "/images/case-cloud.jpg", tags: ["AWS", "Terraform", "Grafana", "Microservices"] },
   { key: "c3", image: "/images/case-iot.jpg", tags: ["IoT", "React Native", "AI", "Maps API"] },
   { key: "c4", image: "/images/case-resol.jpg", tags: ["React", "Node.js", "Middleware", "ERP"] },
+  { key: "c5", image: "/images/case-iot.jpg", tags: ["WhatsApp", "AI Agent", "n8n", "Google Calendar"] },
 ];
 
 function StatCard({

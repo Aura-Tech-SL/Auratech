@@ -237,7 +237,22 @@
     "c4Stat3Label": "Velocidad de facturación",
     "c4Quote": "Ahora todo está conectado. Lo que antes requería horas de trabajo manual, ahora pasa automáticamente. El equipo puede centrarse en lo que realmente importa.",
     "c4QuoteAuthor": "Director de Operaciones",
-    "c4QuoteRole": "Resol"
+    "c4QuoteRole": "Resol",
+    "c5Title": "Agente IA por WhatsApp en clínica estética",
+    "c5Client": "Clínica Aurora Estètica",
+    "c5Sector": "Salud / Estética",
+    "c5Desc": "Agente conversacional de IA sobre WhatsApp Business para gestión 24/7 de citas, recordatorios automáticos y atención postventa. Cumplimiento RGPD para datos de salud.",
+    "c5Challenge": "La clínica perdía consultas cada noche por mensajes sin responder y tenía un no-show del 28% que ningún recordatorio manual conseguía reducir. La recepción dedicaba horas diarias a tareas repetitivas — confirmaciones, precios, disponibilidad — en lugar de atender al cliente presente.",
+    "c5Solution": "Implementamos un agente IA sobre su WhatsApp Business que responde 24/7 con el tono de la marca, gestiona la reserva de citas integrada con Google Calendar, envía recordatorios automáticos 24h y 2h antes del tratamiento, y deriva al personal humano cuando detecta complejidad o sensibilidad.",
+    "c5Stat1": "-65%",
+    "c5Stat1Label": "Reducción del no-show",
+    "c5Stat2": "24/7",
+    "c5Stat2Label": "Cobertura conversacional",
+    "c5Stat3": "5 semanas",
+    "c5Stat3Label": "Piloto a producción",
+    "c5Quote": "El equipo ha podido volver a hacer trabajo de recepción real. El agente coge el 80% de las consultas rutinarias y nos pasa el caso cuando toca decidir algo importante. Los clientes no notan que hablan con una IA — y cuando lo notan, les parece bien porque les resuelve.",
+    "c5QuoteAuthor": "Directora Médica",
+    "c5QuoteRole": "Clínica Aurora Estètica"
   },
   "labs": {
     "label": "Labs",

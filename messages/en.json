@@ -237,7 +237,22 @@
     "c4Stat3Label": "Invoicing speed",
     "c4Quote": "Now everything is connected. What used to take hours of manual work now happens automatically. The team can focus on what truly matters.",
     "c4QuoteAuthor": "Operations Director",
-    "c4QuoteRole": "Resol"
+    "c4QuoteRole": "Resol",
+    "c5Title": "WhatsApp AI agent for an aesthetic clinic",
+    "c5Client": "Clínica Aurora Estètica",
+    "c5Sector": "Health / Aesthetics",
+    "c5Desc": "Conversational AI agent over WhatsApp Business for 24/7 appointment management, automated reminders and post-care. GDPR-compliant for health data.",
+    "c5Challenge": "The clinic was losing enquiries every night to unanswered messages, with a 28% no-show rate that no manual reminder could reduce. Reception spent hours daily on repetitive tasks — confirmations, prices, availability — instead of attending to clients in front of them.",
+    "c5Solution": "We deployed an AI agent on their WhatsApp Business that responds 24/7 with the brand voice, books appointments integrated with Google Calendar, sends automated 24h and 2h reminders before treatment, and hands off to human staff when it detects complexity or sensitivity.",
+    "c5Stat1": "-65%",
+    "c5Stat1Label": "No-show reduction",
+    "c5Stat2": "24/7",
+    "c5Stat2Label": "Conversational coverage",
+    "c5Stat3": "5 weeks",
+    "c5Stat3Label": "Pilot to production",
+    "c5Quote": "Reception is back to doing real reception work. The agent takes 80% of routine queries and brings us the case when it actually matters. Clients don't notice they're talking to an AI — and when they do, they like it because it solves their problem.",
+    "c5QuoteAuthor": "Medical Director",
+    "c5QuoteRole": "Clínica Aurora Estètica"
   },
   "labs": {
     "label": "Labs",
