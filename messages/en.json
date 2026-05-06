@@ -1,6 +1,7 @@
 {
   "nav": {
     "services": "Services",
+    "ai": "AI",
     "projects": "Projects",
     "cases": "Case studies",
     "labs": "Labs",
@@ -86,7 +87,23 @@
     "ctaTitle1": "Have a project in mind?",
     "ctaTitle2": "Let's talk.",
     "ctaDescription": "Tell us about your challenge and we'll help you find the best solution. No commitment, no formalities.",
-    "ctaButton": "Contact us"
+    "ctaButton": "Contact us",
+    "aiBadge": "New — 2026",
+    "aiHeadline": "WhatsApp AI agent for aesthetic clinics",
+    "aiSubheadline": "Capture appointments when staff aren't there. Reduce no-shows. Free up reception from repetitive tasks. In Catalan and Spanish, GDPR-compliant for health data.",
+    "aiBullet1": "24/7 reply to WhatsApp messages in your brand voice",
+    "aiBullet2": "Books and confirms appointments integrating with your calendar",
+    "aiBullet3": "Pilot to production in 5 weeks — no lock-in",
+    "aiCtaPrimary": "See details",
+    "aiCtaSecondary": "Talk to Sandra",
+    "aiChatHeaderName": "Clinic · AI Agent",
+    "aiChatHeaderStatus": "Online 24/7",
+    "aiChat1Client": "Hi, I'd like to book a treatment. What's available this week?",
+    "aiChat1Agent": "Hi! 😊 We have availability Thursday at 5pm and Friday at 11:30am. Which works for you?",
+    "aiChat2Client": "Thursday at 5pm works.",
+    "aiChat2Agent": "Booked ✓ I'll send confirmation with pre-treatment instructions. Reminder 24h beforehand.",
+    "aiChatBadgeLabel": "No-show reduction",
+    "aiChatBadgeValue": "Up to -65%"
   },
   "services": {
     "label": "Services",

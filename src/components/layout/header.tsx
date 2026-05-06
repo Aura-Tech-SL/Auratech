@@ -16,6 +16,7 @@ export function Header() {
 
   const navigation = [
     { name: t("services"), href: "/serveis" },
+    { name: t("ai"), href: "/automatitzacions-ia", highlight: true },
     { name: t("projects"), href: "/projectes" },
     { name: t("cases"), href: "/casos" },
     { name: t("labs"), href: "/labs" },
@@ -34,19 +35,26 @@ export function Header() {
           </Link>
 
           {/* Desktop navigation */}
-          <div className="hidden lg:flex lg:items-center lg:gap-x-8">
+          <div className="hidden lg:flex lg:items-center lg:gap-x-7">
             {navigation.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "font-mono text-[11px] tracking-wider uppercase transition-colors duration-200",
-                  pathname === item.href
+                  "relative font-mono text-[11px] tracking-wider uppercase transition-colors duration-200",
+                  item.highlight
+                    ? pathname === item.href
+                      ? "text-accent"
+                      : "text-accent/80 hover:text-accent"
+                    : pathname === item.href
                     ? "text-foreground"
                     : "text-foreground/40 hover:text-foreground/80"
                 )}
               >
                 {item.name}
+                {item.highlight && (
+                  <span className="absolute -top-1 -right-2 w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                )}
               </Link>
             ))}
           </div>
@@ -92,13 +100,20 @@ export function Header() {
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
                     className={cn(
-                      "block py-3 font-mono text-[13px] tracking-wider uppercase transition-colors",
-                      pathname === item.href
+                      "flex items-center gap-2 py-3 font-mono text-[13px] tracking-wider uppercase transition-colors",
+                      item.highlight
+                        ? pathname === item.href
+                          ? "text-accent"
+                          : "text-accent/80"
+                        : pathname === item.href
                         ? "text-foreground"
                         : "text-foreground/40"
                     )}
                   >
                     {item.name}
+                    {item.highlight && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                    )}
                   </Link>
                 ))}
                 <div className="pt-4 flex flex-col gap-3">

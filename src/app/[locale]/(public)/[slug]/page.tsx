@@ -12,6 +12,8 @@ interface Props {
 // Reserved slugs that have their own route files
 const RESERVED_SLUGS = ["serveis", "projectes", "blog", "contacte", "sobre", "labs", "casos", "avis-legal", "privacitat", "cookies", "login", "registre"];
 
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://auratech.cat";
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (RESERVED_SLUGS.includes(params.slug)) return {};
 
@@ -23,13 +25,33 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!page) return {};
 
+  // Fallback OG: if the Page has no ogImage set, generate one dynamically via /api/og
+  // using the page's title + description. This guarantees every CMS page has a
+  // shareable visual when posted to WhatsApp / LinkedIn / etc.
+  let ogImageUrl = page.ogImage;
+  if (!ogImageUrl) {
+    const ogParams = new URLSearchParams({
+      title: page.metaTitle || page.title,
+    });
+    if (page.metaDescription || page.description) {
+      ogParams.set("subtitle", page.metaDescription || page.description || "");
+    }
+    ogImageUrl = `${SITE_URL}/api/og?${ogParams.toString()}`;
+  }
+
   return {
     title: page.metaTitle || page.title,
     description: page.metaDescription || page.description,
     openGraph: {
       title: page.metaTitle || page.title,
       description: page.metaDescription || page.description || undefined,
-      images: page.ogImage ? [page.ogImage] : undefined,
+      images: [ogImageUrl],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: page.metaTitle || page.title,
+      description: page.metaDescription || page.description || undefined,
+      images: [ogImageUrl],
     },
   };
 }

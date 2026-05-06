@@ -9,6 +9,7 @@ import { GridBackground } from "@/components/ui/grid-background";
 import { GlowOrb } from "@/components/ui/glow-orb";
 import { AnimatedMeshBg } from "@/components/ui/animated-mesh-bg";
 import { useTranslations } from "next-intl";
+import { HomeAiSpotlight } from "@/components/sections/home-ai-spotlight";
 
 const serviceIcons = [Lightbulb, Cloud, Code2, Cpu, BarChart3, Bot];
 const stepIcons = [Layers, Zap, TrendingUp];
@@ -240,6 +241,9 @@ export function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* AI Spotlight — destacat de la nova línia */}
+      <HomeAiSpotlight />
 
       {/* Services */}
       <section className="border-t border-border py-24 sm:py-32">

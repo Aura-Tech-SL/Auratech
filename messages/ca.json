@@ -1,6 +1,7 @@
 {
   "nav": {
     "services": "Serveis",
+    "ai": "IA",
     "projects": "Projectes",
     "cases": "Casos d'èxit",
     "labs": "Labs",
@@ -86,7 +87,23 @@
     "ctaTitle1": "Tens un projecte en ment?",
     "ctaTitle2": "Parlem-ne.",
     "ctaDescription": "Explica'ns el teu repte i t'ajudarem a trobar la millor solució. Sense compromís, sense formalitats.",
-    "ctaButton": "Contacta'ns"
+    "ctaButton": "Contacta'ns",
+    "aiBadge": "Nou — 2026",
+    "aiHeadline": "Agent d'IA per WhatsApp per a clíniques estètiques",
+    "aiSubheadline": "Captura cites quan el personal no hi és. Redueix no-shows. Allibera la recepció de tasques repetitives. En català i castellà, amb compliment RGPD per a dades de salut.",
+    "aiBullet1": "Resposta 24/7 a missatges de WhatsApp amb el to de la teva marca",
+    "aiBullet2": "Reserva i confirma cites integrant amb la teva agenda",
+    "aiBullet3": "Pilot a producció en 5 setmanes — sense permanència",
+    "aiCtaPrimary": "Veure detalls",
+    "aiCtaSecondary": "Parla amb Sandra",
+    "aiChatHeaderName": "Clínica · Agent IA",
+    "aiChatHeaderStatus": "En línia 24/7",
+    "aiChat1Client": "Hola, voldria reservar hora per a un tractament. Quan teniu disponibilitat aquesta setmana?",
+    "aiChat1Agent": "Hola! 😊 Tenim disponibilitat dijous a les 17:00 i divendres a les 11:30. Quina prefereixes?",
+    "aiChat2Client": "Dijous a les 17 va bé.",
+    "aiChat2Agent": "Reservat ✓ T'envio confirmació amb les indicacions prèvies. T'avisaré 24h abans.",
+    "aiChatBadgeLabel": "Reducció de no-shows",
+    "aiChatBadgeValue": "Fins a -65%"
   },
   "services": {
     "label": "Serveis",
