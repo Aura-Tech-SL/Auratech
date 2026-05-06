@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Deep dark with subtle blue undertone (Railway-inspired) */
+    --background: 225 15% 6%;
+    --foreground: 210 20% 95%;
+
+    --card: 225 15% 8%;
+    --card-foreground: 210 20% 95%;
+
+    --primary: 210 20% 95%;
+    --primary-foreground: 225 15% 6%;
+
+    --secondary: 225 12% 12%;
+    --secondary-foreground: 210 20% 85%;
+
+    --muted: 225 12% 12%;
+    --muted-foreground: 215 10% 45%;
+
+    --accent: 195 90% 55%;
+    --accent-foreground: 225 15% 6%;
+
+    --destructive: 0 63% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 10% 14%;
+    --input: 220 10% 14%;
+    --ring: 195 90% 55%;
+    --radius: 0.375rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--foreground) / 0.1);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--foreground) / 0.2);
+}
+
+/* Glass effect (dark) */
+.glass {
+  background: hsl(225 15% 6% / 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Subtle grid background pattern (Linear-inspired) */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, hsl(var(--border)) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+/* Surface with subtle border */
+.surface {
+  @apply bg-card border border-border;
+}
+
+/* Accent glow */
+.glow-accent {
+  box-shadow: 0 0 40px -10px hsl(var(--accent) / 0.3);
+}

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0e1117"/>
+  <rect x="0" y="0" width="1200" height="630" fill="url(#grid)" opacity="0.15"/>
+  <defs>
+    <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse">
+      <path d="M 64 0 L 0 0 0 64" fill="none" stroke="#1e293b" stroke-width="1"/>
+    </pattern>
+    <radialGradient id="glow" cx="70%" cy="30%">
+      <stop offset="0%" stop-color="#33b8db" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#0e1117" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <!-- Logo A -->
+  <path d="M100 480L130 400h-60z M130 400L160 320h-60z" fill="none"/>
+  <g transform="translate(80, 200)">
+    <path d="M40 0L0 100h20l8-20h24l8 20h20L40 0zm0 30L52 70H28L40 30z" fill="#33b8db" transform="scale(1.5)"/>
+  </g>
+  <!-- Text -->
+  <text x="200" y="260" font-family="system-ui, -apple-system, sans-serif" font-size="64" font-weight="300" fill="#e8ecf1" letter-spacing="-2">Auratech</text>
+  <text x="200" y="320" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="300" fill="#e8ecf180" letter-spacing="0">Infraestructura Digital &amp; IoT</text>
+  <!-- Tagline -->
+  <text x="200" y="420" font-family="monospace" font-size="13" fill="#33b8db80" letter-spacing="4" text-transform="uppercase">CONSTRUÏM EL QUE NO ES VEU</text>
+  <!-- Bottom line -->
+  <rect x="200" y="460" width="200" height="1" fill="#33b8db" opacity="0.4"/>
+  <text x="200" y="490" font-family="monospace" font-size="11" fill="#e8ecf130" letter-spacing="3">AURATECH.CAT</text>
+</svg>

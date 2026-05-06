@@ -1,0 +1,251 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ──────────────────────────────────────────────
+
+enum Role {
+  SUPERADMIN
+  ADMIN
+  EDITOR
+  CLIENT
+}
+
+enum PageStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum ProjectStatus {
+  PENDING
+  IN_PROGRESS
+  REVIEW
+  COMPLETED
+}
+
+enum ProjectCategory {
+  IOT
+  CLOUD
+  STRATEGY
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+enum BlogCategory {
+  IOT
+  CLOUD
+  STRATEGY
+  GENERAL
+}
+
+// ─── Models ─────────────────────────────────────────────
+
+model User {
+  id               String         @id @default(cuid())
+  email            String         @unique
+  name             String
+  password         String
+  role             Role           @default(CLIENT)
+  phone            String?
+  company          String?
+  avatar           String?
+  isActive         Boolean        @default(true)
+  projects         Project[]
+  invoices         Invoice[]
+  sentMessages     Message[]      @relation("SentMessages")
+  receivedMessages Message[]      @relation("ReceivedMessages")
+  blogPosts        BlogPost[]     @relation("BlogAuthor")
+  pages            Page[]         @relation("PageAuthor")
+  pageVersions     PageVersion[]  @relation("VersionCreator")
+  media            Media[]        @relation("MediaUploader")
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+model Page {
+  id              String       @id @default(cuid())
+  title           String
+  slug            String
+  locale          String       @default("ca")
+  description     String?
+  metaTitle       String?
+  metaDescription String?
+  ogImage         String?
+  status          PageStatus   @default(DRAFT)
+  template        String?
+  blocks          Block[]
+  versions        PageVersion[]
+  author          User         @relation("PageAuthor", fields: [authorId], references: [id])
+  authorId        String
+  publishedAt     DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@unique([slug, locale])
+  @@index([status])
+}
+
+model Block {
+  id         String    @id @default(cuid())
+  type       String
+  order      Int
+  data       Json      @default("{}")
+  isVisible  Boolean   @default(true)
+  page       Page?     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  pageId     String?
+  blogPost   BlogPost? @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  blogPostId String?
+
+  @@index([pageId, order])
+  @@index([blogPostId, order])
+}
+
+model PageVersion {
+  id          String   @id @default(cuid())
+  page        Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  pageId      String
+  version     Int
+  data        Json
+  createdBy   User     @relation("VersionCreator", fields: [createdById], references: [id])
+  createdById String
+  createdAt   DateTime @default(now())
+}
+
+model BlogPost {
+  id          String       @id @default(cuid())
+  title       String
+  slug        String
+  locale      String       @default("ca")
+  excerpt     String
+  coverImage  String?
+  tags        String[]     @default([])
+  category    BlogCategory @default(GENERAL)
+  status      PostStatus   @default(DRAFT)
+  readTime    Int?
+  blocks      Block[]
+  author      User         @relation("BlogAuthor", fields: [authorId], references: [id])
+  authorId    String
+  publishedAt DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@unique([slug, locale])
+  @@index([status])
+  @@index([category])
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String
+  locale      String   @default("ca")
+  description String
+  icon        String
+  features    Json     @default("[]")
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([slug, locale])
+}
+
+model Project {
+  id           String          @id @default(cuid())
+  name         String
+  slug         String
+  locale       String          @default("ca")
+  client       String
+  category     ProjectCategory @default(IOT)
+  description  String
+  technologies String[]        @default([])
+  image        String?
+  isActive     Boolean         @default(true)
+  order        Int             @default(0)
+  status       ProjectStatus   @default(PENDING)
+  progress     Int             @default(0)
+  startDate    DateTime?
+  endDate      DateTime?
+  user         User?           @relation(fields: [userId], references: [id])
+  userId       String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@unique([slug, locale])
+  @@index([status])
+  @@index([category])
+}
+
+model Media {
+  id           String   @id @default(cuid())
+  url          String
+  filename     String
+  alt          String   @default("")
+  width        Int?
+  height       Int?
+  size         Int
+  mimeType     String
+  folder       String   @default("/")
+  tags         String[] @default([])
+  uploadedBy   User     @relation("MediaUploader", fields: [uploadedById], references: [id])
+  uploadedById String
+  createdAt    DateTime @default(now())
+
+  @@index([folder])
+  @@index([mimeType])
+}
+
+model Invoice {
+  id        String        @id @default(cuid())
+  number    String        @unique
+  amount    Decimal
+  tax       Decimal       @default(0)
+  total     Decimal
+  status    InvoiceStatus @default(PENDING)
+  items     Json          @default("[]")
+  dueDate   DateTime
+  paidAt    DateTime?
+  user      User          @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([status])
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  content    String
+  isRead     Boolean  @default(false)
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
+  senderId   String
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  receiverId String
+  createdAt  DateTime @default(now())
+}
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
