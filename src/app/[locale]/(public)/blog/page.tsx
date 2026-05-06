@@ -3,12 +3,14 @@ export const dynamic = "force-dynamic";
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/db";
 import { BlogClient } from "./blog-client";
+import { buildLocaleAlternates } from "@/lib/seo";
 
 export async function generateMetadata({ params }: { params: { locale: string } }) {
   const t = await getTranslations({ locale: params.locale, namespace: "meta" });
   return {
     title: t("blogTitle"),
     description: t("blogDesc"),
+    alternates: buildLocaleAlternates("/blog", params.locale),
   };
 }
 

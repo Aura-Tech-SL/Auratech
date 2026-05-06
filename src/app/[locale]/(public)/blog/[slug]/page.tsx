@@ -9,7 +9,9 @@ import { prisma } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PageBlocks } from "@/components/blocks/block-renderer";
+import { ArticleJsonLd } from "@/components/seo/json-ld";
 import { formatDate } from "@/lib/utils";
+import { buildLocaleAlternates, SITE_URL } from "@/lib/seo";
 
 interface Props {
   params: { locale: string; slug: string };
@@ -23,6 +25,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${post.title} — Auratech Blog`,
     description: post.excerpt,
+    alternates: buildLocaleAlternates(`/blog/${post.slug}`, params.locale),
+    openGraph: {
+      title: post.title,
+      description: post.excerpt || undefined,
+      type: "article",
+      images: post.coverImage ? [post.coverImage] : undefined,
+    },
   };
 }
 
@@ -42,6 +51,17 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <article className="py-20 sm:py-28">
+      <ArticleJsonLd
+        title={post.title}
+        description={post.excerpt || ""}
+        url={`${SITE_URL}/${params.locale}/blog/${post.slug}`}
+        authorName={post.author.name}
+        datePublished={post.publishedAt?.toISOString()}
+        dateModified={post.updatedAt.toISOString()}
+        image={post.coverImage || undefined}
+        category={post.category}
+        keywords={post.tags}
+      />
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <Link href="/blog">
           <Button variant="ghost" size="sm" className="mb-8">

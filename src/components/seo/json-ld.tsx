@@ -143,6 +143,33 @@ export function ArticleJsonLd({
   return <JsonLdScript data={data} />;
 }
 
+// --- WebPage ---
+
+interface WebPageJsonLdProps {
+  name: string;
+  description: string;
+  url: string;
+}
+
+export function WebPageJsonLd({ name, description, url }: WebPageJsonLdProps) {
+  return (
+    <JsonLdScript
+      data={{
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name,
+        description,
+        url,
+        isPartOf: {
+          '@type': 'WebSite',
+          name: 'Auratech',
+          url: 'https://auratech.cat',
+        },
+      }}
+    />
+  );
+}
+
 // --- Service ---
 
 interface ServiceJsonLdProps {

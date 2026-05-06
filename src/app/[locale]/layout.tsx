@@ -48,7 +48,7 @@ export async function generateMetadata({
         en: 'https://auratech.cat/en',
         ca: 'https://auratech.cat/ca',
         es: 'https://auratech.cat/es',
-        'x-default': 'https://auratech.cat/en',
+        'x-default': 'https://auratech.cat/es',
       },
     },
   };

@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import { PageBlocks } from "@/components/blocks/block-renderer";
+import { WebPageJsonLd } from "@/components/seo/json-ld";
+import { buildLocaleAlternates, SITE_URL } from "@/lib/seo";
 
 interface Props {
   params: { slug: string; locale: string };
@@ -11,8 +13,6 @@ interface Props {
 
 // Reserved slugs that have their own route files
 const RESERVED_SLUGS = ["serveis", "projectes", "blog", "contacte", "sobre", "labs", "casos", "avis-legal", "privacitat", "cookies", "login", "registre"];
-
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://auratech.cat";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (RESERVED_SLUGS.includes(params.slug)) return {};
@@ -42,6 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: page.metaTitle || page.title,
     description: page.metaDescription || page.description,
+    alternates: buildLocaleAlternates(`/${page.slug}`, params.locale),
     openGraph: {
       title: page.metaTitle || page.title,
       description: page.metaDescription || page.description || undefined,
@@ -73,5 +74,14 @@ export default async function DynamicPage({ params }: Props) {
     notFound();
   }
 
-  return <PageBlocks blocks={page.blocks} />;
+  return (
+    <>
+      <WebPageJsonLd
+        name={page.metaTitle || page.title}
+        description={page.metaDescription || page.description || ""}
+        url={`${SITE_URL}/${params.locale}/${page.slug}`}
+      />
+      <PageBlocks blocks={page.blocks} />
+    </>
+  );
 }

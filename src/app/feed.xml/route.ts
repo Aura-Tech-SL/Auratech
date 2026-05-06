@@ -1,8 +1,10 @@
 import { prisma } from '@/lib/db';
+import { defaultLocale } from '@/i18n/config';
 
 export const dynamic = 'force-dynamic';
 
 const BASE_URL = 'https://auratech.cat';
+const FEED_LOCALE = defaultLocale;
 
 function escapeXml(str: string): string {
   return str
@@ -40,7 +42,7 @@ export async function GET() {
 
   const items = posts
     .map((post) => {
-      const link = `${BASE_URL}/en/blog/${post.slug}`;
+      const link = `${BASE_URL}/${FEED_LOCALE}/blog/${post.slug}`;
       const pubDate = (post.publishedAt ?? post.updatedAt).toUTCString();
       return `    <item>
       <title>${escapeXml(post.title)}</title>
@@ -56,9 +58,9 @@ export async function GET() {
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Auratech Blog</title>
-    <link>${BASE_URL}/en/blog</link>
+    <link>${BASE_URL}/${FEED_LOCALE}/blog</link>
     <description>Articles about technology, software development, and digital transformation from Auratech.</description>
-    <language>en</language>
+    <language>${FEED_LOCALE}</language>
     <atom:link href="${BASE_URL}/feed.xml" rel="self" type="application/rss+xml"/>
 ${items}
   </channel>

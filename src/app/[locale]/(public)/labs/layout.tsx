@@ -1,16 +1,15 @@
 import { getTranslations } from "next-intl/server";
-import { SobreFallback } from "@/components/sections/sobre-fallback";
 import { buildLocaleAlternates } from "@/lib/seo";
 
 export async function generateMetadata({ params }: { params: { locale: string } }) {
   const t = await getTranslations({ locale: params.locale, namespace: "meta" });
   return {
-    title: t("aboutTitle"),
-    description: t("aboutDesc"),
-    alternates: buildLocaleAlternates("/sobre", params.locale),
+    title: t("labsTitle"),
+    description: t("labsDesc"),
+    alternates: buildLocaleAlternates("/labs", params.locale),
   };
 }
 
-export default function Page() {
-  return <SobreFallback />;
+export default function LabsLayout({ children }: { children: React.ReactNode }) {
+  return children;
 }

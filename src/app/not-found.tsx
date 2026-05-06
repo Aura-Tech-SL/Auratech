@@ -3,11 +3,14 @@
 import Link from "next/link";
 import { Home, Briefcase, FlaskConical, BookOpen, ArrowLeft } from "lucide-react";
 
+// not-found.tsx lives outside [locale]/, so we can't use the next-intl Link.
+// We rely on the middleware (with localeDetection enabled) to redirect these
+// locale-less paths to the user's preferred locale (or defaultLocale).
 const pages = [
-  { href: "/en", label: "Home", icon: Home },
-  { href: "/en/serveis", label: "Services", icon: Briefcase },
-  { href: "/en/labs", label: "Labs", icon: FlaskConical },
-  { href: "/en/blog", label: "Blog", icon: BookOpen },
+  { href: "/", label: "Home", icon: Home },
+  { href: "/serveis", label: "Serveis", icon: Briefcase },
+  { href: "/labs", label: "Labs", icon: FlaskConical },
+  { href: "/blog", label: "Blog", icon: BookOpen },
 ];
 
 export default function NotFound() {
@@ -22,7 +25,7 @@ export default function NotFound() {
         <div className="relative z-10">
           {/* Subtitle */}
           <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-foreground/40 mb-12">
-            Page not found
+            Pàgina no trobada
           </p>
 
           {/* Suggested pages grid */}
@@ -47,7 +50,7 @@ export default function NotFound() {
             className="inline-flex items-center gap-2 font-mono text-xs text-foreground/40 hover:text-foreground/60 transition-colors duration-200"
           >
             <ArrowLeft className="w-4 h-4" />
-            Go back
+            Tornar enrere
           </button>
         </div>
       </div>

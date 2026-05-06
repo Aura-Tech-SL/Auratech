@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { ServiceJsonLd } from "@/components/seo/json-ld";
 import { ServiceLandingClient } from "./service-landing-client";
+import { buildLocaleAlternates } from "@/lib/seo";
 
 const slugToKey: Record<string, string> = {
   "estrategia-digital": "strategy",
@@ -27,6 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: t(`${key}.metaTitle`),
     description: t(`${key}.metaDesc`),
+    alternates: buildLocaleAlternates(`/serveis/${params.slug}`, params.locale),
   };
 }
 
