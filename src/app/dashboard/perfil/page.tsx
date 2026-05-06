@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { UserCircle, Mail, Phone, Building, Save } from "lucide-react";
+import { UserCircle, Save } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,42 @@ export default function PerfilPage() {
     phone: "+34 93 XXX XX XX",
     company: "Auratech",
   });
+
+  // Password change state
+  const [pwd, setPwd] = useState({ current: "", next: "", confirm: "" });
+  const [pwdState, setPwdState] = useState<{
+    loading: boolean;
+    message?: string;
+    error?: string;
+  }>({ loading: false });
+
+  async function handleChangePassword() {
+    setPwdState({ loading: true });
+    if (pwd.next !== pwd.confirm) {
+      setPwdState({ loading: false, error: "Les contrasenyes noves no coincideixen" });
+      return;
+    }
+    if (pwd.next.length < 8) {
+      setPwdState({ loading: false, error: "La nova contrasenya ha de tenir almenys 8 caràcters" });
+      return;
+    }
+    try {
+      const res = await fetch("/api/profile/password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword: pwd.current, newPassword: pwd.next }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPwdState({ loading: false, error: data.error || "Error desconegut" });
+        return;
+      }
+      setPwdState({ loading: false, message: data.message || "Contrasenya actualitzada" });
+      setPwd({ current: "", next: "", confirm: "" });
+    } catch {
+      setPwdState({ loading: false, error: "Error de xarxa" });
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -90,18 +126,50 @@ export default function PerfilPage() {
             <div className="grid sm:grid-cols-3 gap-4">
               <div>
                 <label className="text-sm font-medium mb-1.5 block">Contrasenya actual</label>
-                <Input type="password" placeholder="••••••••" />
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  value={pwd.current}
+                  onChange={(e) => setPwd({ ...pwd, current: e.target.value })}
+                  autoComplete="current-password"
+                />
               </div>
               <div>
                 <label className="text-sm font-medium mb-1.5 block">Nova contrasenya</label>
-                <Input type="password" placeholder="••••••••" />
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  value={pwd.next}
+                  onChange={(e) => setPwd({ ...pwd, next: e.target.value })}
+                  autoComplete="new-password"
+                />
               </div>
               <div>
                 <label className="text-sm font-medium mb-1.5 block">Confirmar contrasenya</label>
-                <Input type="password" placeholder="••••••••" />
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  value={pwd.confirm}
+                  onChange={(e) => setPwd({ ...pwd, confirm: e.target.value })}
+                  autoComplete="new-password"
+                />
               </div>
             </div>
-            <Button variant="outline">Canviar contrasenya</Button>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                onClick={handleChangePassword}
+                disabled={pwdState.loading || !pwd.current || !pwd.next || !pwd.confirm}
+              >
+                {pwdState.loading ? "Desant..." : "Canviar contrasenya"}
+              </Button>
+              {pwdState.message && (
+                <span className="text-sm text-green-600">{pwdState.message}</span>
+              )}
+              {pwdState.error && (
+                <span className="text-sm text-destructive">{pwdState.error}</span>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
