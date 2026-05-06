@@ -17,8 +17,11 @@ import {
   Image,
   Mail,
   Wrench,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const ADMIN_ROLES = ["SUPERADMIN", "ADMIN", "EDITOR"];
 
 const clientNav = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -42,11 +45,14 @@ const adminNav = [
 
 interface SidebarProps {
   role?: "ADMIN" | "CLIENT";
+  userRole?: string;
 }
 
-export function Sidebar({ role = "CLIENT" }: SidebarProps) {
+export function Sidebar({ role = "CLIENT", userRole }: SidebarProps) {
   const pathname = usePathname();
   const nav = role === "ADMIN" ? adminNav : clientNav;
+  const isPrivileged = !!userRole && ADMIN_ROLES.includes(userRole);
+  const showAdminLink = role === "CLIENT" && isPrivileged;
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r bg-card pt-16">
@@ -75,6 +81,19 @@ export function Sidebar({ role = "CLIENT" }: SidebarProps) {
               </Link>
             );
           })}
+
+          {showAdminLink && (
+            <>
+              <div className="my-3 border-t border-border" />
+              <Link
+                href="/admin"
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-accent hover:bg-accent/10 transition-colors"
+              >
+                <ShieldCheck className="h-5 w-5" />
+                Panell admin
+              </Link>
+            </>
+          )}
         </div>
 
         <div className="border-t pt-4 space-y-1">
