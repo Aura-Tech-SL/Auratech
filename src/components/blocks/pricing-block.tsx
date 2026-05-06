@@ -45,14 +45,20 @@ export function PricingBlock({ data }: PricingBlockProps) {
                 {tier.name}
               </h3>
 
-              <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-4xl font-bold tracking-tight text-foreground">
-                  {tier.price}&euro;
-                </span>
-                {tier.period && (
-                  <span className="text-muted-foreground">/{tier.period}</span>
-                )}
-              </div>
+              {tier.price && tier.price !== "—" ? (
+                <div className="mt-4 flex items-baseline gap-1">
+                  <span className="text-4xl font-bold tracking-tight text-foreground">
+                    {tier.price}&euro;
+                  </span>
+                  {tier.period && (
+                    <span className="text-muted-foreground">/{tier.period}</span>
+                  )}
+                </div>
+              ) : (
+                <div className="mt-4 text-base text-foreground/70">
+                  {tier.period || "Pressupost personalitzat"}
+                </div>
+              )}
 
               <ul className="mt-8 flex-1 space-y-3">
                 {tier.features.map((feature, fIndex) => (
