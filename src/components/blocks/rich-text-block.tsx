@@ -1,3 +1,4 @@
+import DOMPurify from "isomorphic-dompurify";
 import { cn } from "@/lib/utils";
 import type { RichTextData } from "@/lib/blocks/schemas";
 
@@ -6,6 +7,20 @@ interface RichTextBlockProps {
 }
 
 export function RichTextBlock({ data }: RichTextBlockProps) {
+  const sanitized = DOMPurify.sanitize(data.content, {
+    ALLOWED_TAGS: [
+      "h1", "h2", "h3", "h4", "h5", "h6",
+      "p", "br", "hr",
+      "strong", "em", "u", "s", "code", "pre", "blockquote",
+      "ul", "ol", "li",
+      "a", "img",
+      "table", "thead", "tbody", "tr", "th", "td",
+      "span", "div",
+    ],
+    ALLOWED_ATTR: ["href", "target", "rel", "src", "alt", "title", "class"],
+    ALLOW_DATA_ATTR: false,
+  });
+
   return (
     <section className="py-16 sm:py-20">
       <div className="container mx-auto max-w-3xl px-4">
@@ -22,7 +37,7 @@ export function RichTextBlock({ data }: RichTextBlockProps) {
             "prose-pre:bg-secondary prose-pre:rounded-lg",
             "prose-img:rounded-lg"
           )}
-          dangerouslySetInnerHTML={{ __html: data.content }}
+          dangerouslySetInnerHTML={{ __html: sanitized }}
         />
       </div>
     </section>

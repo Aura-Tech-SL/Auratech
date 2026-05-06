@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { contactSchema } from "@/lib/validations/contact";
+import { sendContactNotification } from "@/lib/email";
 
 // Simple in-memory rate limiter
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -48,8 +49,11 @@ export async function POST(request: NextRequest) {
       data: validatedData,
     });
 
-    // TODO: Send email notification via Resend when configured
-    // await sendContactNotification(validatedData);
+    try {
+      await sendContactNotification(validatedData);
+    } catch (emailError) {
+      console.error("[contact] email notification failed:", emailError);
+    }
 
     return NextResponse.json(
       { message: "Message sent successfully", id: submission.id },
