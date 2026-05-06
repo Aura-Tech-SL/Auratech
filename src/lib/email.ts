@@ -3,7 +3,15 @@ import type { ContactFormData } from "@/lib/validations/contact";
 
 const apiKey = process.env.RESEND_API_KEY;
 const fromAddress = process.env.RESEND_FROM || "Auratech <noreply@auratech.cat>";
-const notifyAddress = process.env.CONTACT_NOTIFY_EMAIL || "oscar.rovira@auratech.cat";
+// Comma-separated lists supported (e.g. "a@x.com,b@x.com")
+const notifyTo = (process.env.CONTACT_NOTIFY_EMAIL || "oscar.rovira@auratech.cat")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+const notifyCc = (process.env.CONTACT_NOTIFY_CC || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
 
 const resend = apiKey ? new Resend(apiKey) : null;
 
@@ -57,7 +65,8 @@ export async function sendContactNotification(data: ContactFormData) {
 
   const result = await resend.emails.send({
     from: fromAddress,
-    to: notifyAddress,
+    to: notifyTo,
+    cc: notifyCc.length > 0 ? notifyCc : undefined,
     replyTo: data.email,
     subject: `[Contacte] ${data.subject}`,
     html,
