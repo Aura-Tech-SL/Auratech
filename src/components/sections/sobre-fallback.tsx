@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { SectionLabel } from "@/components/ui/section-label";
 import { GridBackground } from "@/components/ui/grid-background";
+import { TeamMemberCard } from "@/components/team/team-member-card";
 
 export function SobreFallback() {
   const t = useTranslations("about");
@@ -13,6 +14,21 @@ export function SobreFallback() {
     { title: t("v2Title"), description: t("v2Desc") },
     { title: t("v3Title"), description: t("v3Desc") },
     { title: t("v4Title"), description: t("v4Desc") },
+  ];
+
+  const team = [
+    {
+      name: t("m1Name"),
+      role: t("m1Role"),
+      location: t("m1Loc"),
+      bio: t("m1Bio"),
+    },
+    {
+      name: t("m2Name"),
+      role: t("m2Role"),
+      location: t("m2Loc"),
+      bio: t("m2Bio"),
+    },
   ];
 
   return (
@@ -82,6 +98,42 @@ export function SobreFallback() {
                 <p className="text-sm text-foreground/40 leading-relaxed">
                   {value.description}
                 </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-border py-24 sm:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mb-12 grid lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-5">
+              <SectionLabel className="mb-4">{t("teamLabel")}</SectionLabel>
+              <h2 className="font-light text-3xl tracking-tight mb-6">
+                {t("teamTitle")}
+                <br />
+                <span className="text-foreground/40">{t("teamSubtitle")}</span>
+              </h2>
+            </div>
+            <div className="lg:col-span-6 lg:col-start-7 text-sm text-foreground/50 leading-relaxed">
+              <p>{t("teamDescription")}</p>
+            </div>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {team.map((member, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 8 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05, duration: 0.4 }}
+              >
+                <TeamMemberCard
+                  name={member.name}
+                  role={member.role}
+                  location={member.location}
+                  bio={member.bio}
+                />
               </motion.div>
             ))}
           </div>

@@ -64,8 +64,8 @@
     "svc4Desc": "Sensors, dades en temps real i processos automatitzats que milloren l'eficiència operativa.",
     "svc5Title": "Intel·ligència de dades",
     "svc5Desc": "Dashboards i analítiques que converteixen dades en decisions estratègiques accionables.",
-    "svc6Title": "Ciberseguretat",
-    "svc6Desc": "Protecció integral dels teus sistemes, dades i operacions. Monitoratge continu i resposta ràpida.",
+    "svc6Title": "Automatitzacions amb IA",
+    "svc6Desc": "Agents conversacionals i workflows que automatitzen atenció al client, gestió de cites i tasques repetitives. Resultats des del primer mes.",
     "clientsLabel": "Confien en nosaltres",
     "clientsTitle1": "Empreses que",
     "clientsTitle2": "ja hi confien.",
@@ -90,8 +90,9 @@
   },
   "services": {
     "label": "Serveis",
-    "title": "Quatre àrees.",
+    "title": "Cinc àrees.",
     "subtitle": "Expertesa integral.",
+    "newBadge": "Nou",
     "svc1Name": "Estratègia i Arquitectura Digital",
     "svc1Desc": "Analitzem el teu negoci en profunditat per definir un pla tecnològic alineat amb els teus objectius. Cada recomanació es basa en impacte real.",
     "svc1f1": "Diagnòstic Digital",
@@ -131,7 +132,17 @@
     "svc4f3": "Automatització Intel·ligent",
     "svc4f3d": "Workflows automatitzats, RPA i integracions que eliminen tasques repetitives i redueixen errors.",
     "svc4f4": "Bessó Digital",
-    "svc4f4d": "Rèpliques digitals d'actius físics per a monitoratge, simulació i manteniment predictiu."
+    "svc4f4d": "Rèpliques digitals d'actius físics per a monitoratge, simulació i manteniment predictiu.",
+    "svc5Name": "Automatitzacions amb IA",
+    "svc5Desc": "Agents conversacionals i workflows intel·ligents que automatitzen atenció al client, gestió de cites i tasques repetitives. Especialització en clíniques estètiques i pimes del sector salut.",
+    "svc5f1": "Agents conversacionals",
+    "svc5f1d": "Bots d'IA sobre WhatsApp i web que entenen el context, responen 24/7 i deriven al personal humà quan cal.",
+    "svc5f2": "Producte vertical clíniques",
+    "svc5f2d": "SaaS especialitzat per a clíniques estètiques: gestió de cites, recordatoris automàtics i postvenda. Compliment RGPD per dades de salut.",
+    "svc5f3": "Workflows intel·ligents",
+    "svc5f3d": "Automatització de processos amb LLMs: classificació de leads, qualificació, integració amb CRM i notificacions.",
+    "svc5f4": "Consultoria d'IA",
+    "svc5f4d": "T'acompanyem en el disseny i implementació d'IA al teu negoci. Casos d'ús reals, ROI mesurable des del primer mes."
   },
   "projects": {
     "label": "Projectes",
@@ -270,7 +281,19 @@
     "v3Title": "Excel·lència tècnica",
     "v3Desc": "Codi net, testejat i documentat. Invertim en qualitat perquè és el que garanteix resultats a llarg termini.",
     "v4Title": "Socis, no proveïdors",
-    "v4Desc": "Creixem amb els nostres clients. El seu èxit és la millor validació del nostre treball."
+    "v4Desc": "Creixem amb els nostres clients. El seu èxit és la millor validació del nostre treball.",
+    "teamLabel": "Equip",
+    "teamTitle": "Les persones",
+    "teamSubtitle": "darrere d'Auratech.",
+    "teamDescription": "Un equip petit, multidisciplinar i amb experiència real al sector. Parles directament amb qui pren les decisions tècniques i comercials.",
+    "m1Name": "Òscar Rovira Tello",
+    "m1Role": "CEO & CTO",
+    "m1Loc": "Catalunya",
+    "m1Bio": "Enginyer i arquitecte tècnic. Lidera la visió estratègica, el disseny d'arquitectura i el desenvolupament dels productes d'Auratech.",
+    "m2Name": "Sandra Romero Escobar",
+    "m2Role": "CCO — Automatitzacions IA",
+    "m2Loc": "Astúries",
+    "m2Bio": "Lidera la captació comercial i les relacions amb clients de la nova línia d'Automatitzacions amb IA. Operació nacional des d'Astúries."
   },
   "blog": {
     "label": "Blog",
@@ -333,7 +356,9 @@
     "privacyTitle": "Política de Privacitat — Auratech",
     "privacyDesc": "Política de privacitat i protecció de dades personals d'Auratech (Aura Tech SL). Conforme al RGPD.",
     "cookiesTitle": "Política de Cookies — Auratech",
-    "cookiesDesc": "Informació sobre les cookies utilitzades al lloc web d'Auratech i com gestionar-les."
+    "cookiesDesc": "Informació sobre les cookies utilitzades al lloc web d'Auratech i com gestionar-les.",
+    "aiAutomationTitle": "Automatitzacions amb IA — Auratech",
+    "aiAutomationDesc": "Agents conversacionals d'IA i workflows intel·ligents per a pimes. Especialització en clíniques estètiques: gestió de cites per WhatsApp 24/7, recordatoris automàtics i compliment RGPD."
   },
   "legal": {
     "legalTitle": "Avís Legal",

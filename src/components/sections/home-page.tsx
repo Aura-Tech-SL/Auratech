@@ -3,14 +3,14 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { Link } from "@/i18n/navigation";
-import { ArrowRight, ArrowUpRight, Lightbulb, Cloud, Code2, Cpu, Shield, BarChart3, Zap, TrendingUp, Layers, Quote } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Lightbulb, Cloud, Code2, Cpu, Bot, BarChart3, Zap, TrendingUp, Layers, Quote } from "lucide-react";
 import { SectionLabel } from "@/components/ui/section-label";
 import { GridBackground } from "@/components/ui/grid-background";
 import { GlowOrb } from "@/components/ui/glow-orb";
 import { AnimatedMeshBg } from "@/components/ui/animated-mesh-bg";
 import { useTranslations } from "next-intl";
 
-const serviceIcons = [Lightbulb, Cloud, Code2, Cpu, BarChart3, Shield];
+const serviceIcons = [Lightbulb, Cloud, Code2, Cpu, BarChart3, Bot];
 const stepIcons = [Layers, Zap, TrendingUp];
 
 function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: string }) {

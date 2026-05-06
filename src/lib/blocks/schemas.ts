@@ -117,6 +117,7 @@ export type AccordionData = z.infer<typeof accordionSchema>;
 // --- Pricing ---
 export const pricingSchema = z.object({
   heading: z.string().optional(),
+  recommendedLabel: z.string().optional(),
   tiers: z.array(
     z.object({
       name: z.string().min(1),

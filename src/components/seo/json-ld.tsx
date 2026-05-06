@@ -193,6 +193,58 @@ export function FAQPageJsonLd({ items }: FAQPageJsonLdProps) {
   );
 }
 
+// --- Product ---
+
+interface ProductJsonLdProps {
+  name: string;
+  description: string;
+  url?: string;
+  image?: string;
+  offers: Array<{
+    name: string;
+    price: string;
+    priceCurrency?: string;
+    billingIncrement?: string;
+  }>;
+}
+
+export function ProductJsonLd({
+  name,
+  description,
+  url,
+  image,
+  offers,
+}: ProductJsonLdProps) {
+  const data: JsonLdData = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name,
+    description,
+    brand: {
+      '@type': 'Brand',
+      name: 'Auratech',
+    },
+    offers: offers.map((offer) => ({
+      '@type': 'Offer',
+      name: offer.name,
+      price: offer.price,
+      priceCurrency: offer.priceCurrency || 'EUR',
+      availability: 'https://schema.org/InStock',
+      priceSpecification: {
+        '@type': 'UnitPriceSpecification',
+        price: offer.price,
+        priceCurrency: offer.priceCurrency || 'EUR',
+        billingIncrement: offer.billingIncrement || 'P1M',
+      },
+    })),
+  };
+
+  if (url) data.url = url;
+  if (image) data.image = image;
+
+  return <JsonLdScript data={data} />;
+}
+
 // --- Breadcrumb ---
 
 interface BreadcrumbJsonLdProps {

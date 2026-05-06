@@ -37,7 +37,7 @@ export function PricingBlock({ data }: PricingBlockProps) {
             >
               {tier.highlighted && (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent px-4 py-1 font-mono text-xs uppercase tracking-wider text-accent-foreground">
-                  Recomanat
+                  {data.recommendedLabel || "Recomanat"}
                 </span>
               )}
 

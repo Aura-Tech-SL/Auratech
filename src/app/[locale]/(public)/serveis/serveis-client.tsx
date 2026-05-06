@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { Lightbulb, Cloud, Code2, Cpu, ArrowRight } from "lucide-react";
+import { Lightbulb, Cloud, Code2, Cpu, Bot, ArrowRight } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 import Image from "next/image";
 import { SectionLabel } from "@/components/ui/section-label";
@@ -26,13 +26,14 @@ interface ServiceData {
   order: number;
 }
 
-const icons: LucideIcon[] = [Lightbulb, Cloud, Code2, Cpu];
-const slugs = ["estrategia-digital", "cloud-devops", "desenvolupament", "iot-retail"];
+const icons: LucideIcon[] = [Lightbulb, Cloud, Code2, Cpu, Bot];
+const slugs = ["estrategia-digital", "cloud-devops", "desenvolupament", "iot-retail", "automatitzacions-ia"];
 const imagePaths = [
   "/images/service-strategy.jpg",
   "/images/service-cloud-new.jpg",
   "/images/service-dev.jpg",
   "/images/service-iot-new.jpg",
+  "/images/service-strategy.jpg",
 ];
 
 function ServiceCard({
@@ -45,6 +46,8 @@ function ServiceCard({
     name: string;
     description: string;
     slug: string;
+    href?: string;
+    badge?: string;
     features: Array<{ title: string; description: string }>;
   };
   index: number;
@@ -94,6 +97,11 @@ function ServiceCard({
                 {String(index + 1).padStart(2, "0")} — {service.name}
               </span>
             </div>
+            {service.badge && (
+              <span className="absolute top-5 right-5 rounded-full bg-accent px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-accent-foreground shadow-lg">
+                {service.badge}
+              </span>
+            )}
           </div>
         </div>
         <div className={isReversed ? "lg:[direction:ltr]" : ""}>
@@ -109,9 +117,9 @@ function ServiceCard({
             <p className="text-sm text-foreground/50 leading-relaxed mb-6">
               {service.description}
             </p>
-            {service.slug && (
+            {(service.href || service.slug) && (
               <Link
-                href={`/serveis/${service.slug}`}
+                href={service.href || `/serveis/${service.slug}`}
                 className="inline-flex items-center gap-1.5 font-mono text-[11px] tracking-wider uppercase text-accent hover:text-accent/80 transition-colors mb-10"
               >
                 Veure m&eacute;s <ArrowRight className="h-3 w-3" />
@@ -235,6 +243,21 @@ export function ServeisClient({ services: dbServices }: { services: ServiceData[
         { title: t("svc4f2"), description: t("svc4f2d") },
         { title: t("svc4f3"), description: t("svc4f3d") },
         { title: t("svc4f4"), description: t("svc4f4d") },
+      ],
+    },
+    {
+      icon: icons[4],
+      image: imagePaths[4],
+      name: t("svc5Name"),
+      description: t("svc5Desc"),
+      slug: slugs[4],
+      href: "/automatitzacions-ia",
+      badge: t("newBadge"),
+      features: [
+        { title: t("svc5f1"), description: t("svc5f1d") },
+        { title: t("svc5f2"), description: t("svc5f2d") },
+        { title: t("svc5f3"), description: t("svc5f3d") },
+        { title: t("svc5f4"), description: t("svc5f4d") },
       ],
     },
   ];

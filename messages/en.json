@@ -64,8 +64,8 @@
     "svc4Desc": "Sensors, real-time data and automated processes that improve operational efficiency.",
     "svc5Title": "Data intelligence",
     "svc5Desc": "Dashboards and analytics that turn data into actionable strategic decisions.",
-    "svc6Title": "Cybersecurity",
-    "svc6Desc": "Comprehensive protection for your systems, data and operations. Continuous monitoring and rapid response.",
+    "svc6Title": "AI Automations",
+    "svc6Desc": "Conversational agents and intelligent workflows that automate customer service, appointment management and repetitive tasks. Results from the first month.",
     "clientsLabel": "They trust us",
     "clientsTitle1": "Companies that",
     "clientsTitle2": "already trust us.",
@@ -90,8 +90,9 @@
   },
   "services": {
     "label": "Services",
-    "title": "Four areas.",
+    "title": "Five areas.",
     "subtitle": "End-to-end expertise.",
+    "newBadge": "New",
     "svc1Name": "Digital Strategy & Architecture",
     "svc1Desc": "We analyse your business in depth to define a technology plan aligned with your goals. Every recommendation is based on real impact.",
     "svc1f1": "Digital Diagnosis",
@@ -131,7 +132,17 @@
     "svc4f3": "Intelligent Automation",
     "svc4f3d": "Automated workflows, RPA and integrations that eliminate repetitive tasks and reduce errors.",
     "svc4f4": "Digital Twin",
-    "svc4f4d": "Digital replicas of physical assets for monitoring, simulation and predictive maintenance."
+    "svc4f4d": "Digital replicas of physical assets for monitoring, simulation and predictive maintenance.",
+    "svc5Name": "AI Automations",
+    "svc5Desc": "Conversational agents and intelligent workflows that automate customer service, appointment management and repetitive tasks. Specialised in aesthetic clinics and SMBs in the health sector.",
+    "svc5f1": "Conversational agents",
+    "svc5f1d": "AI bots over WhatsApp and web that understand context, respond 24/7 and hand off to human staff when needed.",
+    "svc5f2": "Vertical product for clinics",
+    "svc5f2d": "Specialised SaaS for aesthetic clinics: appointment management, automated reminders and post-sale care. GDPR compliance for health data.",
+    "svc5f3": "Intelligent workflows",
+    "svc5f3d": "Process automation with LLMs: lead classification, qualification, CRM integration and notifications.",
+    "svc5f4": "AI consulting",
+    "svc5f4d": "We guide you through designing and implementing AI in your business. Real use cases, measurable ROI from month one."
   },
   "projects": {
     "label": "Projects",
@@ -270,7 +281,19 @@
     "v3Title": "Technical excellence",
     "v3Desc": "Clean, tested, documented code. We invest in quality because it's what guarantees long-term results.",
     "v4Title": "Partners, not vendors",
-    "v4Desc": "We grow with our clients. Their success is the best validation of our work."
+    "v4Desc": "We grow with our clients. Their success is the best validation of our work.",
+    "teamLabel": "Team",
+    "teamTitle": "The people",
+    "teamSubtitle": "behind Auratech.",
+    "teamDescription": "A small, multidisciplinary team with real industry experience. You speak directly with the people making technical and commercial decisions.",
+    "m1Name": "Òscar Rovira Tello",
+    "m1Role": "CEO & CTO",
+    "m1Loc": "Catalonia",
+    "m1Bio": "Engineer and technical architect. Leads strategic vision, architecture design and product development at Auratech.",
+    "m2Name": "Sandra Romero Escobar",
+    "m2Role": "CCO — AI Automations",
+    "m2Loc": "Asturias",
+    "m2Bio": "Leads commercial outreach and client relations for the new AI Automations line. National operations from Asturias."
   },
   "blog": {
     "label": "Blog",
@@ -333,7 +356,9 @@
     "privacyTitle": "Privacy Policy — Auratech",
     "privacyDesc": "Privacy policy and personal data protection at Auratech (Aura Tech SL). GDPR compliant.",
     "cookiesTitle": "Cookie Policy — Auratech",
-    "cookiesDesc": "Information about cookies used on the Auratech website and how to manage them."
+    "cookiesDesc": "Information about cookies used on the Auratech website and how to manage them.",
+    "aiAutomationTitle": "AI Automations — Auratech",
+    "aiAutomationDesc": "Conversational AI agents and intelligent workflows for SMBs. Specialised in aesthetic clinics: 24/7 WhatsApp appointment management, automated reminders and GDPR compliance."
   },
   "legal": {
     "legalTitle": "Legal Notice",

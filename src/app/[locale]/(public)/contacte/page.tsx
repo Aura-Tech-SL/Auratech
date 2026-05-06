@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,8 +12,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { SectionLabel } from "@/components/ui/section-label";
 import { contactSchema, type ContactFormData } from "@/lib/validations/contact";
 
-export default function ContactePage() {
+function ContactePageContent() {
   const t = useTranslations("contact");
+  const searchParams = useSearchParams();
+  const prefilledSubject = searchParams.get("subject") || "";
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -23,6 +26,9 @@ export default function ContactePage() {
     reset,
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
+    defaultValues: {
+      subject: prefilledSubject,
+    },
   });
 
   const [honeypot, setHoneypot] = useState("");
@@ -211,5 +217,13 @@ export default function ContactePage() {
         </div>
       </section>
     </>
+  );
+}
+
+export default function ContactePage() {
+  return (
+    <Suspense fallback={null}>
+      <ContactePageContent />
+    </Suspense>
   );
 }

@@ -9,6 +9,10 @@ const BASE_URL = 'https://auratech.cat';
 const staticPages = [
   '',
   '/serveis',
+  '/serveis/estrategia-digital',
+  '/serveis/cloud-devops',
+  '/serveis/desenvolupament',
+  '/serveis/iot-retail',
   '/projectes',
   '/labs',
   '/sobre',

@@ -64,8 +64,8 @@
     "svc4Desc": "Sensores, datos en tiempo real y procesos automatizados que mejoran la eficiencia operativa.",
     "svc5Title": "Inteligencia de datos",
     "svc5Desc": "Dashboards y analíticas que convierten datos en decisiones estratégicas accionables.",
-    "svc6Title": "Ciberseguridad",
-    "svc6Desc": "Protección integral de tus sistemas, datos y operaciones. Monitorización continua y respuesta rápida.",
+    "svc6Title": "Automatizaciones con IA",
+    "svc6Desc": "Agentes conversacionales y workflows inteligentes que automatizan atención al cliente, gestión de citas y tareas repetitivas. Resultados desde el primer mes.",
     "clientsLabel": "Confían en nosotros",
     "clientsTitle1": "Empresas que",
     "clientsTitle2": "ya confían.",
@@ -90,8 +90,9 @@
   },
   "services": {
     "label": "Servicios",
-    "title": "Cuatro áreas.",
+    "title": "Cinco áreas.",
     "subtitle": "Experiencia integral.",
+    "newBadge": "Nuevo",
     "svc1Name": "Estrategia y Arquitectura Digital",
     "svc1Desc": "Analizamos tu negocio en profundidad para definir un plan tecnológico alineado con tus objetivos. Cada recomendación se basa en impacto real.",
     "svc1f1": "Diagnóstico Digital",
@@ -131,7 +132,17 @@
     "svc4f3": "Automatización Inteligente",
     "svc4f3d": "Workflows automatizados, RPA e integraciones que eliminan tareas repetitivas y reducen errores.",
     "svc4f4": "Gemelo Digital",
-    "svc4f4d": "Réplicas digitales de activos físicos para monitorización, simulación y mantenimiento predictivo."
+    "svc4f4d": "Réplicas digitales de activos físicos para monitorización, simulación y mantenimiento predictivo.",
+    "svc5Name": "Automatizaciones con IA",
+    "svc5Desc": "Agentes conversacionales y workflows inteligentes que automatizan atención al cliente, gestión de citas y tareas repetitivas. Especialización en clínicas estéticas y pymes del sector salud.",
+    "svc5f1": "Agentes conversacionales",
+    "svc5f1d": "Bots de IA sobre WhatsApp y web que entienden el contexto, responden 24/7 y derivan al personal humano cuando es necesario.",
+    "svc5f2": "Producto vertical clínicas",
+    "svc5f2d": "SaaS especializado para clínicas estéticas: gestión de citas, recordatorios automáticos y postventa. Cumplimiento RGPD para datos de salud.",
+    "svc5f3": "Workflows inteligentes",
+    "svc5f3d": "Automatización de procesos con LLMs: clasificación de leads, cualificación, integración con CRM y notificaciones.",
+    "svc5f4": "Consultoría de IA",
+    "svc5f4d": "Te acompañamos en el diseño e implementación de IA en tu negocio. Casos de uso reales, ROI medible desde el primer mes."
   },
   "projects": {
     "label": "Proyectos",
@@ -270,7 +281,19 @@
     "v3Title": "Excelencia técnica",
     "v3Desc": "Código limpio, testeado y documentado. Invertimos en calidad porque es lo que garantiza resultados a largo plazo.",
     "v4Title": "Socios, no proveedores",
-    "v4Desc": "Crecemos con nuestros clientes. Su éxito es la mejor validación de nuestro trabajo."
+    "v4Desc": "Crecemos con nuestros clientes. Su éxito es la mejor validación de nuestro trabajo.",
+    "teamLabel": "Equipo",
+    "teamTitle": "Las personas",
+    "teamSubtitle": "detrás de Auratech.",
+    "teamDescription": "Un equipo pequeño, multidisciplinar y con experiencia real en el sector. Hablas directamente con quien toma las decisiones técnicas y comerciales.",
+    "m1Name": "Òscar Rovira Tello",
+    "m1Role": "CEO & CTO",
+    "m1Loc": "Cataluña",
+    "m1Bio": "Ingeniero y arquitecto técnico. Lidera la visión estratégica, el diseño de arquitectura y el desarrollo de los productos de Auratech.",
+    "m2Name": "Sandra Romero Escobar",
+    "m2Role": "CCO — Automatizaciones IA",
+    "m2Loc": "Asturias",
+    "m2Bio": "Lidera la captación comercial y las relaciones con clientes de la nueva línea de Automatizaciones con IA. Operación nacional desde Asturias."
   },
   "blog": {
     "label": "Blog",
@@ -333,7 +356,9 @@
     "privacyTitle": "Política de Privacidad — Auratech",
     "privacyDesc": "Política de privacidad y protección de datos personales de Auratech (Aura Tech SL). Conforme al RGPD.",
     "cookiesTitle": "Política de Cookies — Auratech",
-    "cookiesDesc": "Información sobre las cookies utilizadas en el sitio web de Auratech y cómo gestionarlas."
+    "cookiesDesc": "Información sobre las cookies utilizadas en el sitio web de Auratech y cómo gestionarlas.",
+    "aiAutomationTitle": "Automatizaciones con IA — Auratech",
+    "aiAutomationDesc": "Agentes conversacionales de IA y workflows inteligentes para pymes. Especialización en clínicas estéticas: gestión de citas por WhatsApp 24/7, recordatorios automáticos y cumplimiento RGPD."
   },
   "legal": {
     "legalTitle": "Aviso Legal",
