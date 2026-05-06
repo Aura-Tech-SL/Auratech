@@ -249,3 +249,16 @@ model ContactSubmission {
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 }
+
+// Generic rate-limit counter, keyed by an arbitrary string (e.g. "login:1.2.3.4").
+// Postgres-backed because the volume is low and we don't run Redis yet.
+// See openspec/changes/2026-05-06-security-week-1/design.md §1.
+model RateLimit {
+  key       String   @id
+  count     Int      @default(0)
+  resetAt   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([resetAt])
+}
