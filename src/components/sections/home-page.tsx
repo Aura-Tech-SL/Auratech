@@ -149,11 +149,11 @@ export function HomePage() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 1 }} className="max-w-xl">
             <p className="text-base text-foreground/50 leading-relaxed mb-10">{t("heroDescription")}</p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link href="/contacte" className="inline-flex items-center gap-3 font-mono text-xs tracking-wider uppercase bg-accent text-accent-foreground px-8 py-4 rounded-md hover:bg-accent/90 hover:shadow-[0_0_40px_-5px_hsl(var(--accent)/0.5)] group transition-all duration-300">
+              <Link href="/contacte" data-cta="hero_primary" data-cta-location="home" className="inline-flex items-center gap-3 font-mono text-xs tracking-wider uppercase bg-accent text-accent-foreground px-8 py-4 rounded-md hover:bg-accent/90 hover:shadow-[0_0_40px_-5px_hsl(var(--accent)/0.5)] group transition-all duration-300">
                 {t("ctaPrimary")}
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-200" />
               </Link>
-              <Link href="/serveis" className="inline-flex items-center gap-2 font-mono text-xs tracking-wider uppercase text-foreground/50 border border-border px-8 py-4 rounded-md hover:border-accent/30 hover:text-foreground/80 transition-all duration-200">
+              <Link href="/serveis" data-cta="hero_secondary" data-cta-location="home" className="inline-flex items-center gap-2 font-mono text-xs tracking-wider uppercase text-foreground/50 border border-border px-8 py-4 rounded-md hover:border-accent/30 hover:text-foreground/80 transition-all duration-200">
                 {t("ctaSecondary")}
               </Link>
             </div>
@@ -343,7 +343,7 @@ export function HomePage() {
             <span className="bg-gradient-to-r from-accent to-accent/50 bg-clip-text text-transparent">{t("ctaTitle2")}</span>
           </motion.h2>
           <p className="text-sm text-foreground/40 max-w-lg mx-auto mb-10">{t("ctaDescription")}</p>
-          <Link href="/contacte" className="inline-flex items-center gap-3 font-mono text-xs tracking-wider uppercase bg-accent text-accent-foreground px-10 py-5 rounded-md hover:bg-accent/90 hover:shadow-[0_0_50px_-5px_hsl(var(--accent)/0.5)] transition-all duration-300">
+          <Link href="/contacte" data-cta="footer_cta" data-cta-location="home" className="inline-flex items-center gap-3 font-mono text-xs tracking-wider uppercase bg-accent text-accent-foreground px-10 py-5 rounded-md hover:bg-accent/90 hover:shadow-[0_0_50px_-5px_hsl(var(--accent)/0.5)] transition-all duration-300">
             {t("ctaButton")}
             <ArrowUpRight className="h-4 w-4" />
           </Link>

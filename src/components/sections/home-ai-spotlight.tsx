@@ -60,6 +60,8 @@ export function HomeAiSpotlight() {
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/automatitzacions-ia"
+                data-cta="ai_spotlight_primary"
+                data-cta-location="home"
                 className="inline-flex items-center gap-2 bg-foreground text-background px-6 py-3 rounded-md font-mono text-xs uppercase tracking-wider hover:bg-foreground/90 transition-colors"
               >
                 {t("aiCtaPrimary")}

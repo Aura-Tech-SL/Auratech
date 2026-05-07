@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SectionLabel } from "@/components/ui/section-label";
 import { contactSchema, type ContactFormData } from "@/lib/validations/contact";
+import { trackContactSubmit } from "@/lib/analytics/track";
 
 function ContactePageContent() {
   const t = useTranslations("contact");
@@ -42,6 +43,7 @@ function ContactePageContent() {
         body: JSON.stringify({ ...data, website: honeypot }),
       });
       if (res.ok) {
+        trackContactSubmit();
         setSubmitted(true);
         reset();
       }

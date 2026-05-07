@@ -3,6 +3,7 @@ import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { locales, type Locale } from '@/i18n/config';
 import { OrganizationJsonLd, WebSiteJsonLd } from '@/components/seo/json-ld';
+import { CtaTracker } from '@/components/analytics/cta-tracker';
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -69,6 +70,7 @@ export default async function LocaleLayout({
     <NextIntlClientProvider locale={locale} messages={messages}>
       <OrganizationJsonLd />
       <WebSiteJsonLd />
+      <CtaTracker />
       {children}
     </NextIntlClientProvider>
   );
