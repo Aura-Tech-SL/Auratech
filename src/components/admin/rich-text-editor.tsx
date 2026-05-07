@@ -5,7 +5,8 @@ import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
-import { useEffect } from "react";
+import TiptapImage from "@tiptap/extension-image";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   Bold,
@@ -20,10 +21,12 @@ import {
   Code,
   Code2,
   Link as LinkIcon,
+  ImagePlus,
   Minus,
   Undo,
   Redo,
 } from "lucide-react";
+import { MediaPicker } from "@/components/admin/media-picker";
 
 interface RichTextEditorProps {
   value: string;
@@ -52,6 +55,11 @@ export function RichTextEditor({
         autolink: true,
         linkOnPaste: true,
         HTMLAttributes: { rel: "noopener noreferrer", target: "_blank" },
+      }),
+      TiptapImage.configure({
+        inline: false,
+        allowBase64: false,
+        HTMLAttributes: { class: "rounded-md" },
       }),
       Placeholder.configure({ placeholder }),
     ],
@@ -113,7 +121,13 @@ export function RichTextEditor({
   );
 }
 
-function Toolbar({ editor }: { editor: Editor }) {
+interface ToolbarProps {
+  editor: Editor;
+}
+
+function Toolbar({ editor }: ToolbarProps) {
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+
   const promptForLink = () => {
     const previous = editor.getAttributes("link").href as string | undefined;
     const url = window.prompt("URL de l'enllaç (buit per a treure):", previous ?? "");
@@ -221,6 +235,12 @@ function Toolbar({ editor }: { editor: Editor }) {
         <LinkIcon className="h-4 w-4" />
       </Btn>
       <Btn
+        title="Inserir imatge"
+        onClick={() => setMediaPickerOpen(true)}
+      >
+        <ImagePlus className="h-4 w-4" />
+      </Btn>
+      <Btn
         title="Línia divisòria"
         onClick={() => editor.chain().focus().setHorizontalRule().run()}
       >
@@ -243,6 +263,24 @@ function Toolbar({ editor }: { editor: Editor }) {
       >
         <Redo className="h-4 w-4" />
       </Btn>
+
+      {mediaPickerOpen && (
+        <MediaPicker
+          mimePrefix="image/"
+          onClose={() => setMediaPickerOpen(false)}
+          onSelect={(item) => {
+            editor
+              .chain()
+              .focus()
+              .setImage({
+                src: item.url,
+                alt: item.alt || item.filename,
+              })
+              .run();
+            setMediaPickerOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }
