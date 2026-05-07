@@ -5,6 +5,7 @@ import { UserCircle, Save } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TwoFactorSection } from "@/components/dashboard/two-factor-section";
 
 interface ProfileData {
   name: string;
@@ -13,6 +14,7 @@ interface ProfileData {
   company: string;
   role?: string;
   createdAt?: string;
+  twoFactorEnabled?: boolean;
 }
 
 export default function PerfilPage() {
@@ -45,6 +47,7 @@ export default function PerfilPage() {
             company: data.company || "",
             role: data.role,
             createdAt: data.createdAt,
+            twoFactorEnabled: !!data.twoFactorEnabled,
           });
         }
       })
@@ -261,6 +264,21 @@ export default function PerfilPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* 2FA */}
+        <TwoFactorSection
+          twoFactorEnabled={!!profile.twoFactorEnabled}
+          onChanged={() => {
+            // Re-fetch the profile so the local state reflects the new
+            // twoFactorEnabled value.
+            fetch("/api/profile")
+              .then((r) => r.json())
+              .then((d) =>
+                setProfile((p) => ({ ...p, twoFactorEnabled: !!d.twoFactorEnabled }))
+              )
+              .catch(() => {});
+          }}
+        />
 
         {/* GDPR / data rights */}
         <DataRightsSection />

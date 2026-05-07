@@ -10,6 +10,9 @@ const intlMiddleware = createMiddleware({
   localeDetection: true,
 });
 
+// Roles that are required to enable 2FA before accessing /admin.
+const TWOFA_REQUIRED_ROLES = ["SUPERADMIN", "ADMIN"];
+
 const authMiddleware = withAuth(
   function middleware(req) {
     const { pathname } = req.nextUrl;
@@ -21,6 +24,24 @@ const authMiddleware = withAuth(
       if (!token?.role || !adminRoles.includes(token.role as string)) {
         return NextResponse.redirect(new URL("/dashboard", req.url));
       }
+
+      // Force 2FA setup for SUPERADMIN/ADMIN before any /admin access.
+      if (
+        TWOFA_REQUIRED_ROLES.includes(token.role as string) &&
+        token.twoFactorEnabled === false &&
+        pathname !== "/setup-2fa"
+      ) {
+        return NextResponse.redirect(new URL("/setup-2fa", req.url));
+      }
+    }
+
+    // Same gate for the /setup-2fa page: if the user already has 2FA on, no
+    // need to be there.
+    if (
+      pathname === "/setup-2fa" &&
+      token?.twoFactorEnabled === true
+    ) {
+      return NextResponse.redirect(new URL("/admin", req.url));
     }
 
     return NextResponse.next();
@@ -36,7 +57,11 @@ export default function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Auth-protected routes — skip i18n
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/admin")) {
+  if (
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/admin") ||
+    pathname === "/setup-2fa"
+  ) {
     return (authMiddleware as any)(req);
   }
 

@@ -25,6 +25,7 @@ export async function GET() {
       company: true,
       role: true,
       avatar: true,
+      twoFactorEnabled: true,
       createdAt: true,
     },
   });

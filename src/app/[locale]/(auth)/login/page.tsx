@@ -17,11 +17,14 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [needs2fa, setNeeds2fa] = useState(false);
+  const [twoFactorCode, setTwoFactorCode] = useState("");
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    getValues,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
@@ -33,11 +36,23 @@ export default function LoginPage() {
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
+        code: twoFactorCode || undefined,
         redirect: false,
       });
 
-      if (result?.error) {
+      if (result?.error === "TOTP_REQUIRED") {
+        setNeeds2fa(true);
+        setError("");
+      } else if (result?.error === "TOTP_INVALID") {
+        setNeeds2fa(true);
+        setError("Codi 2FA invàlid. Torna-ho a provar.");
+        setTwoFactorCode("");
+      } else if (result?.error?.startsWith("Massa intents")) {
+        setError(result.error);
+      } else if (result?.error) {
         setError("Email o contrasenya incorrectes");
+        setNeeds2fa(false);
+        setTwoFactorCode("");
       } else {
         router.push("/dashboard");
       }
@@ -45,6 +60,13 @@ export default function LoginPage() {
       setError("Error en iniciar sessió");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const submitWith2fa = () => {
+    const values = getValues();
+    if (values.email && values.password) {
+      onSubmit(values);
     }
   };
 
@@ -62,12 +84,6 @@ export default function LoginPage() {
             <h1 className="text-2xl font-bold">Iniciar sessió</h1>
             <p className="text-muted-foreground mt-1">Accedeix al teu espai de client</p>
           </div>
-
-          {error && (
-            <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg mb-6">
-              {error}
-            </div>
-          )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
@@ -99,8 +115,48 @@ export default function LoginPage() {
               )}
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Accedint..." : "Accedir"}
+            {needs2fa && (
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">
+                  Codi 2FA
+                </label>
+                <Input
+                  placeholder="123456 o recovery code"
+                  value={twoFactorCode}
+                  onChange={(e) => setTwoFactorCode(e.target.value)}
+                  autoComplete="one-time-code"
+                  autoFocus
+                  className="font-mono"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Introdueix el codi de 6 dígits del teu autenticador o un
+                  recovery code (XXXX-XXXX).
+                </p>
+              </div>
+            )}
+
+            {error && (
+              <div className="rounded-md bg-destructive/10 border border-destructive/30 px-3 py-2 text-sm text-destructive">
+                {error}
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading || (needs2fa && !twoFactorCode)}
+              onClick={(e) => {
+                if (needs2fa) {
+                  e.preventDefault();
+                  submitWith2fa();
+                }
+              }}
+            >
+              {isLoading
+                ? "Accedint..."
+                : needs2fa
+                ? "Verificar codi"
+                : "Accedir"}
               <LogIn className="ml-2 h-4 w-4" />
             </Button>
           </form>
