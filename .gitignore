@@ -47,3 +47,6 @@ secrets*
 *.secret
 service-account*.json
 .npmrc
+
+# image optimisation backups (originals kept locally, not in git)
+/public/images/_originals/
