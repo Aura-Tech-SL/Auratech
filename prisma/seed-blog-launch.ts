@@ -173,6 +173,7 @@ async function main() {
           readTime: post.readTime,
           status: "PUBLISHED",
           publishedAt,
+          translationKey: post.ref,
         },
         create: {
           title: l.title,
@@ -186,6 +187,7 @@ async function main() {
           status: "PUBLISHED",
           publishedAt,
           authorId: author.id,
+          translationKey: post.ref,
         },
       });
 

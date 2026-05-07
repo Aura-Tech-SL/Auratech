@@ -137,6 +137,11 @@ model BlogPost {
   title       String
   slug        String
   locale      String       @default("ca")
+  // Stable identifier shared across locale variants of the same article.
+  // Slug is locale-specific by SEO design (each language has native URLs);
+  // translationKey is what groups the EN/ES/CA versions of the same post.
+  // Nullable for legacy single-locale posts; set for new launches.
+  translationKey String?
   excerpt     String
   coverImage  String?
   tags        String[]     @default([])
@@ -153,6 +158,7 @@ model BlogPost {
   @@unique([slug, locale])
   @@index([status])
   @@index([category])
+  @@index([translationKey])
 }
 
 model Service {

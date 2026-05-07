@@ -15,11 +15,15 @@ interface BlogPageProps {
 }
 
 interface PostGroup {
-  slug: string;
+  /** translationKey if set, otherwise the slug — guarantees a stable group key. */
+  groupKey: string;
+  /** Display label: same as groupKey but shown to the editor as a slug-style ref. */
+  displayKey: string;
   category: string;
   variants: Array<
     LocaleVariant & {
       title: string;
+      slug: string;
       blockCount: number;
       authorName: string;
     }
@@ -48,11 +52,16 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     },
   });
 
-  // Group by slug. Each post can have multiple locale variants.
+  // Group by translationKey when set; fall back to slug for legacy CA-only
+  // posts that pre-date the translation linkage. Slugs are locale-specific
+  // for SEO, so they can't group multilingual variants on their own.
   const groupsMap = new Map<string, PostGroup>();
   for (const row of allRows) {
-    const g = groupsMap.get(row.slug) ?? {
-      slug: row.slug,
+    const groupKey = row.translationKey ?? `__slug__:${row.slug}`;
+    const displayKey = row.translationKey ?? row.slug;
+    const g = groupsMap.get(groupKey) ?? {
+      groupKey,
+      displayKey,
       category: row.category,
       variants: [],
       lastUpdated: row.updatedAt,
@@ -64,12 +73,13 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
       status: row.status,
       updatedAt: row.updatedAt,
       title: row.title,
+      slug: row.slug,
       blockCount: row._count.blocks,
       authorName: row.author.name,
     });
     if (row.updatedAt > g.lastUpdated) g.lastUpdated = row.updatedAt;
     g.totalBlocks = Math.max(g.totalBlocks, row._count.blocks);
-    groupsMap.set(row.slug, g);
+    groupsMap.set(groupKey, g);
   }
 
   let groups = Array.from(groupsMap.values()).sort(
@@ -179,7 +189,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                   group.variants[0];
                 return (
                   <div
-                    key={group.slug}
+                    key={group.groupKey}
                     className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-secondary/20 transition-colors"
                   >
                     <div className="col-span-4 min-w-0">
@@ -188,7 +198,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                         className="block group"
                       >
                         <p className="text-sm font-mono text-foreground/80 truncate group-hover:text-accent transition-colors">
-                          /{group.slug}
+                          {group.displayKey}
                         </p>
                         <p className="text-xs text-foreground/40 truncate mt-0.5">
                           {defaultVariant.title}
@@ -204,7 +214,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                       <LocalePills
                         variants={group.variants}
                         editPrefix="/admin/blog"
-                        createPrefixForSlug={`/admin/blog/nou?slug=${encodeURIComponent(group.slug)}`}
+                        createPrefixForSlug={`/admin/blog/nou?translationKey=${encodeURIComponent(group.displayKey)}`}
                       />
                     </div>
                     <div className="col-span-2 text-sm text-foreground/40 font-mono">
