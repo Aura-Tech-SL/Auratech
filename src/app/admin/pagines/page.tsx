@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils";
 import Link from "next/link";
-import { Plus, FileText } from "lucide-react";
+import { Plus, FileText, Info, ExternalLink } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 
 interface PaginesPageProps {
@@ -174,6 +174,63 @@ export default async function PaginesPage({ searchParams }: PaginesPageProps) {
           )}
         </CardContent>
       </Card>
+
+      {/* Static (code-driven) pages — read-only reference */}
+      <div className="pt-4">
+        <div className="mb-3 flex items-start gap-2 text-sm text-foreground/50">
+          <Info className="h-4 w-4 mt-0.5 shrink-0 text-foreground/40" />
+          <p>
+            Aquestes pàgines viuen al codi (
+            <code className="font-mono text-xs">src/app/[locale]/(public)/</code>),
+            no a la BBDD. Per editar el seu contingut cal un canvi al repositori. Les
+            llisto aquí com a referència de la superfície pública total.
+          </p>
+        </div>
+
+        <Card>
+          <CardContent className="p-0">
+            <div className="divide-y divide-border">
+              <div className="grid grid-cols-12 gap-4 px-6 py-3 text-xs font-semibold text-foreground/40 uppercase tracking-wider">
+                <div className="col-span-4">Ruta pública</div>
+                <div className="col-span-7">Descripció</div>
+                <div className="col-span-1 text-right">Visitar</div>
+              </div>
+              {STATIC_PAGES.map((p) => (
+                <a
+                  key={p.path}
+                  href={`https://auratech.cat/ca${p.path}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="grid grid-cols-12 gap-4 px-6 py-3 hover:bg-secondary/30 transition-colors items-center group"
+                >
+                  <div className="col-span-4 text-sm font-mono text-foreground/70 truncate">
+                    /[locale]{p.path}
+                  </div>
+                  <div className="col-span-7 text-sm text-foreground/50 truncate">
+                    {p.description}
+                  </div>
+                  <div className="col-span-1 text-right">
+                    <ExternalLink className="h-3.5 w-3.5 text-foreground/30 group-hover:text-accent transition-colors inline" />
+                  </div>
+                </a>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
+
+const STATIC_PAGES = [
+  { path: "", description: "Home — landing principal" },
+  { path: "/serveis", description: "Catàleg de serveis (cards des de Service model)" },
+  { path: "/projectes", description: "Portfolio de projectes" },
+  { path: "/casos", description: "Casos d'èxit destacats" },
+  { path: "/labs", description: "Labs / experiments interns" },
+  { path: "/blog", description: "Llistat de posts (continguts a la BBDD via /admin/blog)" },
+  { path: "/contacte", description: "Formulari de contacte" },
+  { path: "/avis-legal", description: "Avís legal" },
+  { path: "/privacitat", description: "Política de privacitat" },
+  { path: "/cookies", description: "Política de cookies" },
+];
