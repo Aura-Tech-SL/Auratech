@@ -1,11 +1,12 @@
 /**
  * WhatsApp Business contact for Auratech.
  *
- * Currently routes to Oscar's number. When Sandra obtains her own
- * WhatsApp Business line (and Meta verification for the public profile),
- * change this constant — every link in the codebase rebuilds from here.
+ * Routes to Sandra Romero (CCO), the commercial entry point for the
+ * AI Automations line and general inbound. Every WhatsApp link in the
+ * codebase (header, footer, home AI spotlight, dashboard) rebuilds from
+ * this constant — change it here to redirect everything in one go.
  */
-export const WHATSAPP_NUMBER = "34630893096";
+export const WHATSAPP_NUMBER = "34611480862";
 
 /**
  * Build a wa.me link with optional pre-filled message. Always returns an
