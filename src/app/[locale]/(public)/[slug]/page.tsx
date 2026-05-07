@@ -6,9 +6,12 @@ import { prisma } from "@/lib/db";
 import { PageBlocks } from "@/components/blocks/block-renderer";
 import { WebPageJsonLd } from "@/components/seo/json-ld";
 import { buildLocaleAlternates, SITE_URL } from "@/lib/seo";
+import { isPreviewMode } from "@/lib/preview-mode";
+import { PreviewBanner } from "@/components/admin/preview-banner";
 
 interface Props {
   params: { slug: string; locale: string };
+  searchParams: { preview?: string };
 }
 
 // Reserved slugs that have their own route files
@@ -57,18 +60,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function DynamicPage({ params }: Props) {
+export default async function DynamicPage({ params, searchParams }: Props) {
   if (RESERVED_SLUGS.includes(params.slug)) {
     notFound();
   }
 
-  const page = await prisma.page.findFirst({
-    where: { slug: params.slug, status: "PUBLISHED", locale: params.locale },
-    include: { blocks: { orderBy: { order: "asc" } } },
-  }) || await prisma.page.findFirst({
-    where: { slug: params.slug, status: "PUBLISHED", locale: "ca" },
-    include: { blocks: { orderBy: { order: "asc" } } },
-  });
+  const preview = await isPreviewMode(searchParams);
+  const baseFilter: { slug: string; status?: "PUBLISHED" } = preview
+    ? { slug: params.slug }
+    : { slug: params.slug, status: "PUBLISHED" };
+
+  const page =
+    (await prisma.page.findFirst({
+      where: { ...baseFilter, locale: params.locale },
+      include: { blocks: { orderBy: { order: "asc" } } },
+    })) ||
+    (await prisma.page.findFirst({
+      where: { ...baseFilter, locale: "ca" },
+      include: { blocks: { orderBy: { order: "asc" } } },
+    }));
 
   if (!page) {
     notFound();
@@ -76,6 +86,9 @@ export default async function DynamicPage({ params }: Props) {
 
   return (
     <>
+      {preview && (
+        <PreviewBanner backHref={`/admin/pagines/${page.id}`} status={page.status} />
+      )}
       <WebPageJsonLd
         name={page.metaTitle || page.title}
         description={page.metaDescription || page.description || ""}

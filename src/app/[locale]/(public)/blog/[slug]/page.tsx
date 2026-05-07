@@ -12,9 +12,12 @@ import { PageBlocks } from "@/components/blocks/block-renderer";
 import { ArticleJsonLd } from "@/components/seo/json-ld";
 import { formatDate } from "@/lib/utils";
 import { buildLocaleAlternates, SITE_URL } from "@/lib/seo";
+import { isPreviewMode } from "@/lib/preview-mode";
+import { PreviewBanner } from "@/components/admin/preview-banner";
 
 interface Props {
   params: { locale: string; slug: string };
+  searchParams: { preview?: string };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -35,10 +38,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function BlogPostPage({ params }: Props) {
+export default async function BlogPostPage({ params, searchParams }: Props) {
   const t = await getTranslations({ locale: params.locale, namespace: "blog" });
+  const preview = await isPreviewMode(searchParams);
   const post = await prisma.blogPost.findFirst({
-    where: { slug: params.slug, status: "PUBLISHED" },
+    where: preview
+      ? { slug: params.slug }
+      : { slug: params.slug, status: "PUBLISHED" },
     include: {
       blocks: { orderBy: { order: "asc" } },
       author: { select: { name: true } },
@@ -50,6 +56,10 @@ export default async function BlogPostPage({ params }: Props) {
   }
 
   return (
+    <>
+    {preview && (
+      <PreviewBanner backHref={`/admin/blog/${post.id}`} status={post.status} />
+    )}
     <article className="py-20 sm:py-28">
       <ArticleJsonLd
         title={post.title}
@@ -114,5 +124,6 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
       </div>
     </article>
+    </>
   );
 }

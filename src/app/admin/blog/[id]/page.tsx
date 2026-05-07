@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Loader2, Save, Send, X, Languages } from "lucide-react";
+import { ArrowLeft, Loader2, Save, Send, X, Languages, Eye } from "lucide-react";
 import Link from "next/link";
 import { useVariantState } from "@/components/admin/page-editor/use-variant-state";
 import { VariantColumn } from "@/components/admin/page-editor/variant-column";
@@ -291,6 +291,20 @@ export default function BlogPostEditorPage() {
     }
   }
 
+  async function handlePreview() {
+    if (!post) return;
+    await handleSave();
+    const previewLocale =
+      activeSide === "right" && compareLocale ? compareLocale : post.locale;
+    const previewSlug =
+      activeSide === "right" && comparePost ? comparePost.slug : post.slug;
+    window.open(
+      `/${previewLocale}/blog/${previewSlug}?preview=admin`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  }
+
   async function handlePublish() {
     setPublishing(true);
     setError("");
@@ -515,6 +529,17 @@ export default function BlogPostEditorPage() {
           </span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          <Button
+            variant="ghost"
+            onClick={handlePreview}
+            disabled={saving}
+            className="gap-2"
+            size="sm"
+            title="Desa i obre vista prèvia en una pestanya nova"
+          >
+            <Eye className="h-4 w-4" />
+            Vista prèvia
+          </Button>
           <Button
             variant="outline"
             onClick={handleSave}

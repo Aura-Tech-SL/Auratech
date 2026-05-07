@@ -11,6 +11,7 @@ import {
   Send,
   X,
   Languages,
+  Eye,
 } from "lucide-react";
 import Link from "next/link";
 import { useVariantState } from "@/components/admin/page-editor/use-variant-state";
@@ -212,6 +213,22 @@ export default function PageEditorPage() {
     }
   }
 
+  async function handlePreview() {
+    if (!page) return;
+    // Save first so the preview reflects the latest editor state.
+    await handleSave();
+    // Use the side that's currently active for the URL.
+    const previewLocale =
+      activeSide === "right" && compareLocale ? compareLocale : page.locale;
+    const previewSlug =
+      activeSide === "right" && comparePost ? comparePost.slug : page.slug;
+    window.open(
+      `/${previewLocale}/${previewSlug}?preview=admin`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  }
+
   async function handlePublish() {
     setPublishing(true);
     setError("");
@@ -374,6 +391,17 @@ export default function PageEditorPage() {
           </span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          <Button
+            variant="ghost"
+            onClick={handlePreview}
+            disabled={saving}
+            className="gap-2"
+            size="sm"
+            title="Desa i obre vista prèvia en una pestanya nova"
+          >
+            <Eye className="h-4 w-4" />
+            Vista prèvia
+          </Button>
           <Button
             variant="outline"
             onClick={handleSave}
