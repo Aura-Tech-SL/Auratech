@@ -153,20 +153,17 @@ export function BlockEditorForm({ type, data, onChange }: BlockEditorFormProps) 
 
     case "rich-text":
       return (
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label>Contingut</Label>
-            <RichTextEditor
-              value={data.content || ""}
-              onChange={(html) => update("content", html)}
-              placeholder="Escriu el contingut..."
-            />
-            <p className="text-xs text-foreground/40">
-              Format ric. Output HTML net (DOMPurify sanititza al renderitzar al
-              public). Suporta negreta, cursiva, encapçalaments, llistes, cites,
-              codi, enllaços i línia divisòria.
-            </p>
+        <div className="space-y-3">
+          <div className="rounded-md border border-accent/30 bg-accent/[0.04] p-3 text-xs text-accent/90">
+            Aquest bloc s&apos;edita inline al canvas. Clica directament sobre el
+            text per començar a escriure; la toolbar de format apareixerà a
+            sobre.
           </div>
+          <p className="text-xs text-foreground/40">
+            Format ric, output HTML net. Suporta negreta, cursiva, encapçalaments,
+            llistes, cites, codi i enllaços. DOMPurify sanititza al renderitzar
+            al public.
+          </p>
         </div>
       );
 

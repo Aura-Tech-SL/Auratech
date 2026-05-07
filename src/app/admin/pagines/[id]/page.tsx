@@ -18,7 +18,7 @@ import {
   arrayMove,
   type CanvasBlock,
 } from "@/components/admin/page-editor/visual-canvas";
-import { SidePanel } from "@/components/admin/page-editor/side-panel";
+import { InspectorSidebar } from "@/components/admin/page-editor/inspector-sidebar";
 
 // ── Types ────────────────────────────────────────────
 
@@ -70,7 +70,6 @@ export default function PageEditorPage() {
   const [success, setSuccess] = useState("");
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [titleEdit, setTitleEdit] = useState("");
-  const [editingTitle, setEditingTitle] = useState(false);
   const [localeEdit, setLocaleEdit] = useState("ca");
 
   const loadPage = useCallback(async () => {
@@ -250,86 +249,102 @@ export default function PageEditorPage() {
     );
   }
 
+  const documentTab = (
+    <div className="space-y-4">
+      <div className="space-y-1.5">
+        <label className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">
+          Estat
+        </label>
+        <Badge
+          variant={
+            page.status === "PUBLISHED"
+              ? "accent"
+              : page.status === "DRAFT"
+              ? "outline"
+              : "secondary"
+          }
+        >
+          {page.status === "PUBLISHED"
+            ? "Publicat"
+            : page.status === "DRAFT"
+            ? "Esborrany"
+            : "Arxivat"}
+        </Badge>
+      </div>
+      <div className="space-y-1.5">
+        <label className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">
+          Slug
+        </label>
+        <div className="text-sm font-mono text-foreground/70">/{page.slug}</div>
+      </div>
+      <div className="space-y-1.5">
+        <label className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">
+          Idioma
+        </label>
+        <select
+          value={localeEdit}
+          onChange={(e) => setLocaleEdit(e.target.value)}
+          className="w-full h-8 rounded-md border border-border bg-secondary/50 px-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+        >
+          <option value="ca">Català</option>
+          <option value="en">English</option>
+          <option value="es">Español</option>
+        </select>
+      </div>
+      <div className="space-y-1.5">
+        <label className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">
+          Autor
+        </label>
+        <div className="text-sm text-foreground/70">{page.author.name}</div>
+      </div>
+      {page.publishedAt && (
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">
+            Publicat el
+          </label>
+          <div className="text-sm text-foreground/70 font-mono">
+            {new Date(page.publishedAt).toISOString().slice(0, 10)}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-4 min-w-0">
+    <div className="-mx-4 -my-8 sm:-mx-6 lg:-mx-8 min-h-[calc(100vh-4rem)]">
+      {/* Top bar */}
+      <div className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur px-4 sm:px-6 lg:px-8 py-2.5">
+        <div className="flex items-center gap-3 min-w-0">
           <Link href="/admin/pagines">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" aria-label="Tornar a Pàgines">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <div className="min-w-0">
-            {editingTitle ? (
-              <div className="flex items-center gap-2">
-                <Input
-                  value={titleEdit}
-                  onChange={(e) => setTitleEdit(e.target.value)}
-                  onBlur={() => setEditingTitle(false)}
-                  onKeyDown={(e) => e.key === "Enter" && setEditingTitle(false)}
-                  className="text-2xl font-bold h-auto py-1"
-                  autoFocus
-                />
-              </div>
-            ) : (
-              <h1
-                className="text-2xl font-bold tracking-tight cursor-pointer hover:text-accent transition-colors truncate"
-                onClick={() => setEditingTitle(true)}
-                title="Fes clic per editar"
-              >
-                {titleEdit || page.title}
-              </h1>
-            )}
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-sm text-foreground/40 font-mono">/{page.slug}</span>
-              <Badge
-                variant={
-                  page.status === "PUBLISHED"
-                    ? "accent"
-                    : page.status === "DRAFT"
-                    ? "outline"
-                    : "secondary"
-                }
-              >
-                {page.status === "PUBLISHED"
-                  ? "Publicat"
-                  : page.status === "DRAFT"
-                  ? "Esborrany"
-                  : "Arxivat"}
-              </Badge>
-              <select
-                value={localeEdit}
-                onChange={(e) => setLocaleEdit(e.target.value)}
-                className="h-7 rounded-md border border-border bg-secondary/50 px-2 py-0.5 text-xs text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent focus-visible:border-accent/50 transition-colors"
-              >
-                <option value="ca">CA</option>
-                <option value="es">ES</option>
-                <option value="en">EN</option>
-              </select>
-            </div>
-          </div>
+          <span className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">
+            Editor de pàgina · {localeEdit.toUpperCase()}
+          </span>
         </div>
-
         <div className="flex items-center gap-2 shrink-0">
           <Button
             variant="outline"
             onClick={handleSave}
             disabled={saving}
             className="gap-2"
+            size="sm"
           >
             {saving ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Save className="h-4 w-4" />
             )}
-            Desar esborrany
+            Desar
           </Button>
           <Button
             variant="accent"
             onClick={handlePublish}
             disabled={publishing || saving}
             className="gap-2"
+            size="sm"
           >
             {publishing ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -342,45 +357,77 @@ export default function PageEditorPage() {
       </div>
 
       {/* Messages */}
-      {error && (
-        <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-4 py-3 flex items-center justify-between">
-          {error}
-          <button onClick={() => setError("")} className="text-destructive/60 hover:text-destructive">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-      {success && (
-        <div className="text-sm text-accent bg-accent/10 border border-accent/20 rounded-md px-4 py-3 flex items-center justify-between">
-          {success}
-          <button onClick={() => setSuccess("")} className="text-accent/60 hover:text-accent">
-            <X className="h-4 w-4" />
-          </button>
+      {(error || success) && (
+        <div className="px-4 sm:px-6 lg:px-8 pt-3">
+          {error && (
+            <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-4 py-3 flex items-center justify-between">
+              {error}
+              <button onClick={() => setError("")} className="text-destructive/60 hover:text-destructive">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+          {success && (
+            <div className="text-sm text-accent bg-accent/10 border border-accent/20 rounded-md px-4 py-3 flex items-center justify-between">
+              {success}
+              <button onClick={() => setSuccess("")} className="text-accent/60 hover:text-accent">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Visual canvas */}
-      <VisualCanvas
-        blocks={blocks as CanvasBlock[]}
-        selectedClientId={selectedClientId}
-        onSelect={setSelectedClientId}
-        onReorder={reorderBlocks}
-        onToggleVisibility={toggleVisibility}
-        onDelete={removeBlock}
-        onDuplicate={duplicateBlock}
-        onInsert={insertBlockAt}
-      />
+      {/* 2-column layout: canvas (left) + inspector (right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-4 px-4 sm:px-6 lg:px-8 py-6">
+        <div className="min-w-0 space-y-6">
+          {/* Title (editable, big) */}
+          <div className="space-y-1">
+            <p className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">
+              Títol
+            </p>
+            <Input
+              value={titleEdit}
+              onChange={(e) => setTitleEdit(e.target.value)}
+              placeholder="Sense títol"
+              className="!text-3xl !h-auto !py-2 !px-2 !font-light !tracking-tight border-transparent hover:border-border focus:border-accent/50 transition-colors bg-transparent"
+            />
+            <p className="text-xs text-foreground/40 font-mono pl-2">
+              /{localeEdit}/{page.slug}
+            </p>
+          </div>
 
-      {/* Side panel — slides in when a block is selected */}
-      {selectedBlock && (
-        <SidePanel
-          blockType={selectedBlock.type}
-          blockData={selectedBlock.data}
-          isVisible={!!selectedClientId}
-          onChange={(data) => updateBlockData(selectedBlock._clientId, data)}
-          onClose={() => setSelectedClientId(null)}
-        />
-      )}
+          {/* Visual canvas */}
+          <VisualCanvas
+            blocks={blocks as CanvasBlock[]}
+            selectedClientId={selectedClientId}
+            onSelect={setSelectedClientId}
+            onChange={updateBlockData}
+            onReorder={reorderBlocks}
+            onToggleVisibility={toggleVisibility}
+            onDelete={removeBlock}
+            onDuplicate={duplicateBlock}
+            onInsert={insertBlockAt}
+          />
+        </div>
+
+        {/* Inspector sidebar — sticky, always visible */}
+        <div className="hidden lg:block">
+          <InspectorSidebar
+            documentTab={documentTab}
+            selectedBlock={
+              selectedBlock
+                ? {
+                    type: selectedBlock.type,
+                    data: selectedBlock.data,
+                    onChange: (data) =>
+                      updateBlockData(selectedBlock._clientId, data),
+                  }
+                : null
+            }
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Eye, EyeOff, Trash2, Copy } from "lucide-react";
-import { BlockSummary } from "./block-summary";
+import { CanvasBlockBody } from "./canvas-block-body";
 import { cn } from "@/lib/utils";
 
 interface SortableBlockShellProps {
@@ -13,6 +13,7 @@ interface SortableBlockShellProps {
   isVisible: boolean;
   isSelected: boolean;
   onSelect: () => void;
+  onChange: (data: Record<string, unknown>) => void;
   onToggleVisibility: () => void;
   onDelete: () => void;
   onDuplicate: () => void;
@@ -25,6 +26,7 @@ export function SortableBlockShell({
   isVisible,
   isSelected,
   onSelect,
+  onChange,
   onToggleVisibility,
   onDelete,
   onDuplicate,
@@ -65,19 +67,21 @@ export function SortableBlockShell({
           <GripVertical className="h-4 w-4" />
         </button>
 
-        {/* Body — clickable summary */}
-        <button
-          type="button"
-          onClick={onSelect}
-          className="flex-1 min-w-0 text-left"
+        {/* Body — click anywhere outside the editor to select */}
+        <div
+          className="flex-1 min-w-0"
+          onClick={() => {
+            if (!isSelected) onSelect();
+          }}
         >
-          <BlockSummary
+          <CanvasBlockBody
             type={type}
             data={data}
             isVisible={isVisible}
             isSelected={isSelected}
+            onChange={onChange}
           />
-        </button>
+        </div>
 
         {/* Action buttons (visible on hover or when selected) */}
         <div

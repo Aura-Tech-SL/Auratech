@@ -30,6 +30,7 @@ interface VisualCanvasProps {
   blocks: CanvasBlock[];
   selectedClientId: string | null;
   onSelect: (clientId: string) => void;
+  onChange: (clientId: string, data: Record<string, unknown>) => void;
   onReorder: (oldIndex: number, newIndex: number) => void;
   onToggleVisibility: (clientId: string) => void;
   onDelete: (clientId: string) => void;
@@ -41,6 +42,7 @@ export function VisualCanvas({
   blocks,
   selectedClientId,
   onSelect,
+  onChange,
   onReorder,
   onToggleVisibility,
   onDelete,
@@ -89,6 +91,7 @@ export function VisualCanvas({
                   isVisible={block.isVisible}
                   isSelected={id === selectedClientId}
                   onSelect={() => onSelect(id)}
+                  onChange={(data) => onChange(id, data)}
                   onToggleVisibility={() => onToggleVisibility(id)}
                   onDelete={() => onDelete(id)}
                   onDuplicate={() => onDuplicate(id)}
