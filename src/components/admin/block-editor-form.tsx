@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 
 interface BlockEditorFormProps {
   type: string;
@@ -154,14 +155,17 @@ export function BlockEditorForm({ type, data, onChange }: BlockEditorFormProps) 
       return (
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label>Contingut HTML</Label>
-            <Textarea
+            <Label>Contingut</Label>
+            <RichTextEditor
               value={data.content || ""}
-              onChange={(e) => update("content", e.target.value)}
-              placeholder="<p>Escriu el contingut aqui...</p>"
-              rows={10}
-              className="font-mono text-sm"
+              onChange={(html) => update("content", html)}
+              placeholder="Escriu el contingut..."
             />
+            <p className="text-xs text-foreground/40">
+              Format ric. Output HTML net (DOMPurify sanititza al renderitzar al
+              public). Suporta negreta, cursiva, encapçalaments, llistes, cites,
+              codi, enllaços i línia divisòria.
+            </p>
           </div>
         </div>
       );
