@@ -46,7 +46,7 @@ export async function PUT(
             metaDescription: page.metaDescription,
             blocks: page.blocks,
           },
-          createdById: (session!.user as any).id,
+          createdById: session!.user.id,
         },
       }),
     ]);

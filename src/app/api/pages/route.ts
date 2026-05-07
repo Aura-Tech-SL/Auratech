@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
         metaTitle: data.metaTitle,
         metaDescription: data.metaDescription,
         locale: data.locale,
-        authorId: (session!.user as any).id,
+        authorId: session!.user.id,
       },
     });
 

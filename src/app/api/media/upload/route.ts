@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     if (!session?.user) {
       return NextResponse.json({ error: "No autoritzat" }, { status: 401 });
     }
-    const role = (session.user as { role?: string }).role;
+    const role = session.user.role;
     if (!role || !UPLOAD_ROLES.includes(role)) {
       return NextResponse.json(
         { error: "Insufficient permissions" },
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
           size: file.size,
           mimeType: file.type,
           folder,
-          uploadedById: (session.user as { id: string }).id,
+          uploadedById: session.user.id,
         },
       });
 

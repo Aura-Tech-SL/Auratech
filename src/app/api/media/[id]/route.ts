@@ -18,7 +18,7 @@ export async function DELETE(
     }
 
     const allowedRoles = ["SUPERADMIN", "ADMIN", "EDITOR"];
-    const role = (session.user as { role?: string }).role;
+    const role = session.user.role;
     if (!role || !allowedRoles.includes(role)) {
       return NextResponse.json(
         { error: "Insufficient permissions" },
@@ -34,10 +34,7 @@ export async function DELETE(
     // Ownership: admins delete anything; EDITOR only deletes media they uploaded.
     if (
       !ownsResource(media.uploadedById, {
-        user: {
-          id: (session.user as { id?: string }).id,
-          role,
-        },
+        user: { id: session.user.id, role },
       })
     ) {
       return NextResponse.json(
@@ -58,7 +55,7 @@ export async function DELETE(
 
     await logAuditEvent({
       action: "media_deleted",
-      actorId: (session.user as { id?: string }).id,
+      actorId: session.user.id,
       actorEmail: session.user.email,
       targetType: "Media",
       targetId: params.id,

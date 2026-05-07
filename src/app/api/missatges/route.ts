@@ -12,8 +12,8 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: "No autoritzat" }, { status: 401 });
     }
 
-    const userId = (session.user as { id?: string }).id;
-    const role = (session.user as { role?: string }).role;
+    const userId = session.user.id;
+    const role = session.user.role;
 
     // Admins can see all messages (for moderation / support).
     // Other users see only conversations they participate in.
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const senderId = (session.user as { id?: string }).id;
+    const senderId = session.user.id;
     if (!senderId) {
       return NextResponse.json(
         { error: "Sessió invàlida" },

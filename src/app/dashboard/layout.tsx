@@ -8,7 +8,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
-  const userRole = (session?.user as { role?: string } | undefined)?.role;
+  const userRole = session?.user?.role;
   return (
     <div className="min-h-screen bg-muted/30">
       <Sidebar userRole={userRole} />

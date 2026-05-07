@@ -174,11 +174,10 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        const u = user as unknown as {
-          role: typeof token.role;
-          twoFactorEnabled?: boolean;
-        };
-        token.id = user.id;
+        // The shape returned by `authorize()` is wider than NextAuth's
+        // built-in User type. Use a narrow inline type rather than `as unknown`.
+        const u = user as { id: string; role: typeof token.role; twoFactorEnabled?: boolean };
+        token.id = u.id;
         token.role = u.role;
         token.twoFactorEnabled = u.twoFactorEnabled ?? false;
         return token;
