@@ -4,6 +4,7 @@ import { compare, hash } from "bcryptjs";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { logAuditEvent, getRequestIp } from "@/lib/audit";
 
 const passwordSchema = z.object({
   currentPassword: z.string().min(1, "Contrasenya actual requerida"),
@@ -53,6 +54,13 @@ export async function POST(request: NextRequest) {
   await prisma.user.update({
     where: { id: user.id },
     data: { password: hashed },
+  });
+
+  await logAuditEvent({
+    action: "password_changed",
+    actorId: user.id,
+    actorEmail: user.email,
+    ipAddress: getRequestIp(request.headers),
   });
 
   return NextResponse.json({ message: "Contrasenya actualitzada" });

@@ -3,6 +3,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { prisma } from "./db";
 import { checkRateLimit, resetRateLimit } from "./rate-limit";
+import { logAuditEvent } from "./audit";
+import { verifyTotp } from "./totp";
 
 const LOGIN_RATE_MAX = 5;
 const LOGIN_RATE_WINDOW_MS = 15 * 60 * 1000;
@@ -37,6 +39,10 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Contrasenya", type: "password" },
+        // Optional: TOTP code (or recovery code XXXX-XXXX) when the account has
+        // 2FA enabled. The login UI submits the credentials twice — first
+        // without `code` to learn whether 2FA is required, then with the code.
+        code: { label: "Codi", type: "text" },
       },
       async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) {
@@ -59,9 +65,13 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user) {
-          // Distinguish in server logs but not in the response — prevents
-          // attackers from enumerating valid emails.
           console.warn(`[auth] login_failed reason=user_not_found email=${credentials.email} ip=${ip}`);
+          await logAuditEvent({
+            action: "login_failed",
+            actorEmail: credentials.email,
+            ipAddress: ip,
+            metadata: { reason: "user_not_found" },
+          });
           throw new Error(GENERIC_CREDENTIAL_ERROR);
         }
 
@@ -69,18 +79,94 @@ export const authOptions: NextAuthOptions = {
 
         if (!isPasswordValid) {
           console.warn(`[auth] login_failed reason=password_mismatch email=${credentials.email} ip=${ip}`);
+          await logAuditEvent({
+            action: "login_failed",
+            actorId: user.id,
+            actorEmail: user.email,
+            ipAddress: ip,
+            metadata: { reason: "password_mismatch" },
+          });
           throw new Error(GENERIC_CREDENTIAL_ERROR);
         }
 
-        // Successful login — reset the failed-attempts budget so a user who
-        // typed wrong four times doesn't carry that history forward.
+        // 2FA gating. If the user has it enabled, we need a valid TOTP or
+        // recovery code; otherwise we tell the client to ask the user for
+        // one and re-submit.
+        if (user.twoFactorEnabled && user.twoFactorSecret) {
+          const code = (credentials.code || "").trim();
+          if (!code) {
+            // Sentinel error string; the login page detects this and shows the
+            // 2FA input.
+            throw new Error("TOTP_REQUIRED");
+          }
+
+          // Recovery codes look like XXXX-XXXX (uppercase hex with dash).
+          // Numeric 6-digit codes are TOTP. Try TOTP first.
+          let valid = false;
+          let usedRecovery = false;
+          if (/^\d{6}$/.test(code.replace(/\s+/g, ""))) {
+            valid = verifyTotp(user.twoFactorSecret, code);
+          } else {
+            // Recovery code path — compare against the stored bcrypt hashes.
+            const normalised = code.toUpperCase();
+            for (const hashed of user.twoFactorRecoveryCodes) {
+              // eslint-disable-next-line no-await-in-loop
+              if (await compare(normalised, hashed)) {
+                valid = true;
+                usedRecovery = true;
+                // Consume this code.
+                await prisma.user.update({
+                  where: { id: user.id },
+                  data: {
+                    twoFactorRecoveryCodes: user.twoFactorRecoveryCodes.filter(
+                      (h) => h !== hashed,
+                    ),
+                  },
+                });
+                break;
+              }
+            }
+          }
+
+          if (!valid) {
+            await logAuditEvent({
+              action: "2fa_failed",
+              actorId: user.id,
+              actorEmail: user.email,
+              ipAddress: ip,
+            });
+            throw new Error("TOTP_INVALID");
+          }
+
+          if (usedRecovery) {
+            await logAuditEvent({
+              action: "2fa_recovery_used",
+              actorId: user.id,
+              actorEmail: user.email,
+              ipAddress: ip,
+              metadata: {
+                remaining: user.twoFactorRecoveryCodes.length - 1,
+              },
+            });
+          }
+        }
+
+        // Hash login is fully validated — clear the rate budget and emit a
+        // success event.
         await resetRateLimit(rateKey);
+        await logAuditEvent({
+          action: "login_success",
+          actorId: user.id,
+          actorEmail: user.email,
+          ipAddress: ip,
+        });
 
         return {
           id: user.id,
           email: user.email,
           name: user.name,
           role: user.role,
+          twoFactorEnabled: user.twoFactorEnabled,
         };
       },
     }),
@@ -88,8 +174,13 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        const u = user as unknown as {
+          role: typeof token.role;
+          twoFactorEnabled?: boolean;
+        };
         token.id = user.id;
-        token.role = (user as unknown as { role: typeof token.role }).role;
+        token.role = u.role;
+        token.twoFactorEnabled = u.twoFactorEnabled ?? false;
       }
       return token;
     },
@@ -97,6 +188,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id;
         session.user.role = token.role;
+        session.user.twoFactorEnabled = token.twoFactorEnabled;
       }
       return session;
     },

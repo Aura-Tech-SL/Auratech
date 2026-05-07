@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { ownsResource } from "@/lib/authz";
+import { logAuditEvent, getRequestIp } from "@/lib/audit";
 import { unlink } from "fs/promises";
 import path from "path";
 
@@ -54,6 +55,16 @@ export async function DELETE(
     }
 
     await prisma.media.delete({ where: { id: params.id } });
+
+    await logAuditEvent({
+      action: "media_deleted",
+      actorId: (session.user as { id?: string }).id,
+      actorEmail: session.user.email,
+      targetType: "Media",
+      targetId: params.id,
+      ipAddress: getRequestIp(request.headers),
+      metadata: { filename: media.filename, url: media.url },
+    });
 
     return NextResponse.json({ data: { message: "Fitxer eliminat" } });
   } catch (error) {

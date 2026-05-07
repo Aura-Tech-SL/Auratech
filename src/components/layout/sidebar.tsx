@@ -18,6 +18,7 @@ import {
   Mail,
   Wrench,
   ShieldCheck,
+  ScrollText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -47,6 +48,7 @@ const adminNav: NavItem[] = [
   { name: "Media", href: "/admin/media", icon: Image },
   { name: "Contacte", href: "/admin/contacte", icon: Mail, badgeKey: "contact" },
   { name: "Clients", href: "/admin/clients", icon: Users },
+  { name: "Audit log", href: "/admin/audit-log", icon: ScrollText },
   { name: "Configuració", href: "/admin/configuracio", icon: Settings },
 ];
 
