@@ -13,6 +13,7 @@ const createPostSchema = z.object({
   category: z.enum(["IOT", "CLOUD", "STRATEGY", "GENERAL"]).default("GENERAL"),
   readTime: z.number().int().nullable().optional(),
   locale: z.enum(["en", "ca", "es"]).default("ca"),
+  translationKey: z.string().nullable().optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -74,9 +75,15 @@ export async function POST(request: NextRequest) {
 
     const slug = data.slug || slugify(data.title);
 
-    const existing = await prisma.blogPost.findFirst({ where: { slug } });
+    // Slug uniqueness is per locale (each language has its own URL).
+    const existing = await prisma.blogPost.findFirst({
+      where: { slug, locale: data.locale },
+    });
     if (existing) {
-      return NextResponse.json({ error: "El slug ja existeix" }, { status: 409 });
+      return NextResponse.json(
+        { error: `Ja existeix un article amb slug "${slug}" en ${data.locale}` },
+        { status: 409 },
+      );
     }
 
     const post = await prisma.blogPost.create({
@@ -89,6 +96,7 @@ export async function POST(request: NextRequest) {
         category: data.category,
         readTime: data.readTime,
         locale: data.locale,
+        translationKey: data.translationKey ?? null,
         authorId: session!.user.id,
       },
     });
