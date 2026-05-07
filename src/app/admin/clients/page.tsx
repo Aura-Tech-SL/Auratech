@@ -5,6 +5,7 @@ import { Users, Mail, Building, MoreVertical, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 
 const clients = [
   {
@@ -39,16 +40,17 @@ const clients = [
 export default function AdminClientsPage() {
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Clients</h1>
-          <p className="text-muted-foreground mt-1">Gestió de clients d&apos;Auratech</p>
-        </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Nou client
-        </Button>
-      </div>
+      <AdminPageHeader
+        label="Admin · Persones"
+        title="Clients"
+        description="Gestió de clients d'Auratech"
+        action={
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Nou client
+          </Button>
+        }
+      />
 
       <Card>
         <CardContent className="p-0">

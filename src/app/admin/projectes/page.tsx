@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getStatusColor, getStatusLabel, formatDate } from "@/lib/utils";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 
 const projects = [
   {
@@ -49,16 +50,17 @@ const projects = [
 export default function AdminProjectesPage() {
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Projectes</h1>
-          <p className="text-muted-foreground mt-1">Gestió de tots els projectes</p>
-        </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Nou projecte
-        </Button>
-      </div>
+      <AdminPageHeader
+        label="Admin · Operacions"
+        title="Projectes"
+        description="Gestió de tots els projectes"
+        action={
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Nou projecte
+          </Button>
+        }
+      />
 
       {/* Stats */}
       <div className="grid sm:grid-cols-4 gap-4">

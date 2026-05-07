@@ -8,6 +8,7 @@ import { isAdmin } from "@/lib/authz";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 
 export const dynamic = "force-dynamic";
 
@@ -55,22 +56,16 @@ export default async function AdminContactePage({
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Mail className="h-7 w-7" />
-            Contacte
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Missatges rebuts del formulari de contacte
-            {unreadCount > 0 && (
-              <>
-                {" "}— <strong className="text-accent">{unreadCount} no llegits</strong>
-              </>
-            )}
-          </p>
-        </div>
-      </div>
+      <AdminPageHeader
+        label="Admin · Inbox"
+        title="Contacte"
+        description={
+          unreadCount > 0
+            ? `Missatges rebuts del formulari · ${unreadCount} no llegits`
+            : "Missatges rebuts del formulari de contacte"
+        }
+        icon={<Mail className="h-7 w-7 text-foreground/40" />}
+      />
 
       {/* Filters */}
       <form className="flex flex-wrap gap-3 items-center">

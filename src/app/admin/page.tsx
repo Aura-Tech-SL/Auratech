@@ -15,6 +15,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 
 export default async function AdminDashboard() {
   const [
@@ -55,10 +56,11 @@ export default async function AdminDashboard() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Panell d&apos;administracio</h1>
-        <p className="text-foreground/50 mt-1">Resum general del contingut del lloc web</p>
-      </div>
+      <AdminPageHeader
+        label="Admin · Visió general"
+        title="Panell d'administracio"
+        description="Resum general del contingut del lloc web"
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">

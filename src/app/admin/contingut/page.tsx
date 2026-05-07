@@ -6,6 +6,7 @@ import { FileText, Plus, MoreVertical, Eye, Edit, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 
 const blogPosts = [
   {
@@ -45,16 +46,17 @@ const blogPosts = [
 export default function AdminContingutPage() {
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Contingut</h1>
-          <p className="text-muted-foreground mt-1">Gestió del blog i contingut del web</p>
-        </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Nou article
-        </Button>
-      </div>
+      <AdminPageHeader
+        label="Admin · Contingut"
+        title="Contingut"
+        description="Gestió del blog i contingut del web"
+        action={
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Nou article
+          </Button>
+        }
+      />
 
       <Card>
         <CardHeader>

@@ -7,6 +7,7 @@ import { prisma } from "@/lib/db";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 
 export const dynamic = "force-dynamic";
 
@@ -88,15 +89,12 @@ export default async function AuditLogPage({
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-3">
-          <ScrollText className="h-7 w-7" />
-          Audit log
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Registre d&apos;esdeveniments de seguretat. Retenció: 1 any.
-        </p>
-      </div>
+      <AdminPageHeader
+        label="Admin · Compliance"
+        title="Audit log"
+        description="Registre d'esdeveniments de seguretat. Retenció: 1 any."
+        icon={<ScrollText className="h-7 w-7 text-foreground/40" />}
+      />
 
       <form className="flex flex-wrap gap-3 items-center">
         <select

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 import { Plus, PenSquare } from "lucide-react";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 
 interface BlogPageProps {
   searchParams: { status?: string; category?: string };
@@ -53,18 +54,19 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Blog</h1>
-          <p className="text-foreground/50 mt-1">Gestiona els articles del blog</p>
-        </div>
-        <Link href="/admin/blog/nou">
-          <Button variant="accent" className="gap-2">
-            <Plus className="h-4 w-4" />
-            Nou article
-          </Button>
-        </Link>
-      </div>
+      <AdminPageHeader
+        label="Admin · Blog"
+        title="Articles"
+        description="Gestiona els articles del blog"
+        action={
+          <Link href="/admin/blog/nou">
+            <Button variant="accent" className="gap-2">
+              <Plus className="h-4 w-4" />
+              Nou article
+            </Button>
+          </Link>
+        }
+      />
 
       {/* Filters */}
       <div className="flex gap-2">

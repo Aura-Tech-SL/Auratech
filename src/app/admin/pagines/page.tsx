@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 import { Plus, FileText } from "lucide-react";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 
 interface PaginesPageProps {
   searchParams: { status?: string };
@@ -46,18 +47,19 @@ export default async function PaginesPage({ searchParams }: PaginesPageProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Pagines</h1>
-          <p className="text-foreground/50 mt-1">Gestiona les pagines del lloc web</p>
-        </div>
-        <Link href="/admin/pagines/nova">
-          <Button variant="accent" className="gap-2">
-            <Plus className="h-4 w-4" />
-            Nova pagina
-          </Button>
-        </Link>
-      </div>
+      <AdminPageHeader
+        label="Admin · Contingut"
+        title="Pagines"
+        description="Gestiona les pagines del lloc web"
+        action={
+          <Link href="/admin/pagines/nova">
+            <Button variant="accent" className="gap-2">
+              <Plus className="h-4 w-4" />
+              Nova pagina
+            </Button>
+          </Link>
+        }
+      />
 
       {/* Filters */}
       <div className="flex gap-2">
