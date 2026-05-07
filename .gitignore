@@ -50,3 +50,8 @@ service-account*.json
 
 # image optimisation backups (originals kept locally, not in git)
 /public/images/_originals/
+
+# playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
