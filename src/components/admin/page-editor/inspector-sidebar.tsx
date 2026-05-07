@@ -6,8 +6,10 @@ import { BlockEditorForm } from "@/components/admin/block-editor-form";
 import { cn } from "@/lib/utils";
 
 interface InspectorSidebarProps {
-  /** Document-level (page) settings — rendered in the "Pàgina" tab. */
+  /** Document-level settings — rendered in the document tab. */
   documentTab: React.ReactNode;
+  /** Label for the document tab (default "Pàgina"). */
+  documentTabLabel?: string;
   /** Block-specific config — rendered in the "Bloc" tab. */
   selectedBlock: {
     type: string;
@@ -38,6 +40,7 @@ const BLOCK_LABELS: Record<string, string> = {
 
 export function InspectorSidebar({
   documentTab,
+  documentTabLabel = "Pàgina",
   selectedBlock,
 }: InspectorSidebarProps) {
   const [active, setActive] = useState<"page" | "block">(
@@ -56,7 +59,7 @@ export function InspectorSidebar({
           active={effectiveActive === "page"}
           onClick={() => setActive("page")}
           icon={<FileText className="h-3.5 w-3.5" />}
-          label="Pàgina"
+          label={documentTabLabel}
         />
         <TabBtn
           active={effectiveActive === "block"}
