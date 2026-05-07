@@ -181,6 +181,24 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = u.role;
         token.twoFactorEnabled = u.twoFactorEnabled ?? false;
+        return token;
+      }
+      // Subsequent calls (no `user`): refresh role and twoFactorEnabled from
+      // the DB so changes (admin enabling 2FA, role promotion) take effect
+      // without a forced logout.
+      if (token.id) {
+        try {
+          const fresh = await prisma.user.findUnique({
+            where: { id: token.id },
+            select: { role: true, twoFactorEnabled: true },
+          });
+          if (fresh) {
+            token.role = fresh.role;
+            token.twoFactorEnabled = fresh.twoFactorEnabled;
+          }
+        } catch {
+          // DB hiccup — keep the existing token values.
+        }
       }
       return token;
     },

@@ -26,9 +26,11 @@ const authMiddleware = withAuth(
       }
 
       // Force 2FA setup for SUPERADMIN/ADMIN before any /admin access.
+      // `!== true` (rather than `=== false`) so that pre-2FA-deploy JWTs,
+      // which lack the field entirely, are also gated.
       if (
         TWOFA_REQUIRED_ROLES.includes(token.role as string) &&
-        token.twoFactorEnabled === false &&
+        token.twoFactorEnabled !== true &&
         pathname !== "/setup-2fa"
       ) {
         return NextResponse.redirect(new URL("/setup-2fa", req.url));
