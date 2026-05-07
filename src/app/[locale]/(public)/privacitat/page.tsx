@@ -4,12 +4,15 @@ import { useTranslations } from "next-intl";
 import { SectionLabel } from "@/components/ui/section-label";
 
 const sections = [
-  { titleKey: "privacyController", heading: "Data controller" },
-  { titleKey: "privacyData", heading: "Data collected" },
-  { titleKey: "privacyBasis", heading: "Legal basis" },
-  { titleKey: "privacyRetention", heading: "Data retention" },
-  { titleKey: "privacyRights", heading: "Your rights" },
-  { titleKey: "privacyContact", heading: "Contact" },
+  { headingKey: "privacyHeadingController", bodyKey: "privacyController" },
+  { headingKey: "privacyHeadingData", bodyKey: "privacyData" },
+  { headingKey: "privacyHeadingBasis", bodyKey: "privacyBasis" },
+  { headingKey: "privacyHeadingRetention", bodyKey: "privacyRetention" },
+  { headingKey: "privacyHeadingSubprocessors", bodyKey: "privacySubprocessors" },
+  { headingKey: "privacyHeadingArticle9", bodyKey: "privacyArticle9" },
+  { headingKey: "privacyHeadingTransfers", bodyKey: "privacyTransfers" },
+  { headingKey: "privacyHeadingRights", bodyKey: "privacyRights" },
+  { headingKey: "privacyHeadingContact", bodyKey: "privacyContact" },
 ] as const;
 
 export default function PrivacitatPage() {
@@ -25,10 +28,10 @@ export default function PrivacitatPage() {
 
       <div className="space-y-0">
         {sections.map((section) => (
-          <div key={section.titleKey} className="border-t border-border py-8">
-            <h2 className="text-lg font-medium mb-3">{section.heading}</h2>
+          <div key={section.bodyKey} className="border-t border-border py-8">
+            <h2 className="text-lg font-medium mb-3">{t(section.headingKey)}</h2>
             <p className="text-sm text-foreground/60 whitespace-pre-line leading-relaxed">
-              {t(section.titleKey)}
+              {t(section.bodyKey)}
             </p>
           </div>
         ))}
