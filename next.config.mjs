@@ -1,4 +1,5 @@
 import createNextIntlPlugin from 'next-intl/plugin';
+import { withSentryConfig } from '@sentry/nextjs';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
@@ -88,4 +89,16 @@ const nextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+// Sentry wraps last so it can hook into the build output. Source-map upload is
+// gated on SENTRY_AUTH_TOKEN being present in CI; locally and in dev the wrap
+// is a no-op.
+const sentryOptions = {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  silent: !process.env.CI,
+  disableLogger: true,
+  hideSourceMaps: true,
+  widenClientFileUpload: true,
+};
+
+export default withSentryConfig(withNextIntl(nextConfig), sentryOptions);
