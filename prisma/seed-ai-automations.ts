@@ -24,6 +24,7 @@ type AiContent = {
   useCases: { heading: string; items: Array<{ title: string; description: string }> };
   pricing: { heading: string; recommendedLabel: string; period: string; tier1: { name: string; features: string[]; cta: string }; tier2: { name: string; features: string[]; cta: string }; tier3: { name: string; features: string[]; cta: string }; setupNote: string };
   faq: Array<{ question: string; answer: string }>;
+  pilotSection: string;
   cta: { heading: string; text: string; buttonText: string };
 };
 
@@ -35,9 +36,9 @@ const aiContent: Record<string, AiContent> = {
     description: "Línia de negoci d'Auratech especialitzada en agents d'IA i automatització de processos per a pimes.",
     hero: {
       heading: "Automatitzacions amb IA per a pimes",
-      subheading: "Agents conversacionals que responen, gestionen i venen 24/7. Especialitzats en clíniques estètiques i sector salut.",
+      subheading: "Agents conversacionals que responen, gestionen i venen 24/7. Especialitzats en clíniques estètiques i sector salut. (Pilot — disponibilitat per demo, contacta'ns per validar el teu cas.)",
       ctaText: "Veure paquets",
-      ctaSecondary: "Parlem",
+      ctaSecondary: "Parla amb Sandra",
     },
     layers: {
       heading: "Tres formes de treballar amb nosaltres",
@@ -110,6 +111,7 @@ const aiContent: Record<string, AiContent> = {
       { question: "Hi ha permanència?", answer: "No. Subscripció mensual cancel·lable amb un mes de preavís. La setup inicial és única i no es retorna." },
       { question: "Com es paga?", answer: "Domiciliació SEPA o transferència. Facturem mensualment. El setup es factura al començament del pilot." },
     ],
+    pilotSection: `<h2>Per què parlem de pilot?</h2><p>Cada implantació té un setup adaptat: la teva clínica fa servir un software de gestió concret, té un to de marca propi, i protocols pre-tractament que difereixen d'una altra clínica. L'agent ha d'aprendre <strong>el teu cas</strong>, no un genèric.</p><p>Per això la fase pilot és part del producte, no un afegit comercial. Els primers dies validem que l'agent respon com tu vols, que les integracions amb la teva agenda funcionen, i que els protocols RGPD per a dades de salut estan ben fixats.</p><p>No hi ha autoservei de moment. Cada onboarding passa per una conversa de 15 minuts amb la Sandra per validar que el teu cas encaixa amb el que oferim avui. Si encaixa, anem endavant. Si no, t'ho diem clar.</p>`,
     cta: {
       heading: "Comencem el pilot avui?",
       text: "Posa'l a prova durant 30 dies amb la teva clínica real. Si no recuperes el setup en cites recuperades, et tornem els diners.",
@@ -123,9 +125,9 @@ const aiContent: Record<string, AiContent> = {
     description: "Auratech's business line specialised in AI agents and process automation for SMBs.",
     hero: {
       heading: "AI Automations for SMBs",
-      subheading: "Conversational agents that respond, manage and sell 24/7. Specialised in aesthetic clinics and the health sector.",
+      subheading: "Conversational agents that respond, manage and sell 24/7. Specialised in aesthetic clinics and the health sector. (Pilot stage — available for demo, contact us to validate your case.)",
       ctaText: "See packages",
-      ctaSecondary: "Let's talk",
+      ctaSecondary: "Talk to Sandra",
     },
     layers: {
       heading: "Three ways to work with us",
@@ -198,6 +200,7 @@ const aiContent: Record<string, AiContent> = {
       { question: "Is there a lock-in?", answer: "No. Monthly subscription with one month notice. The initial setup is one-off and non-refundable." },
       { question: "How is it paid?", answer: "SEPA direct debit or bank transfer. Monthly invoicing. The setup is invoiced at the start of the pilot." },
     ],
+    pilotSection: `<h2>Why "pilot"?</h2><p>Every deployment has a tailored setup: your clinic uses a specific scheduling tool, has its own brand voice, and pre-treatment protocols that differ from another clinic's. The agent needs to learn <strong>your case</strong>, not a generic one.</p><p>That's why the pilot phase is part of the product, not a commercial add-on. The first days we validate that the agent responds the way you want, that the integrations with your calendar work, and that the GDPR protocols for health data are properly set.</p><p>There's no self-service today. Every onboarding goes through a 15-minute conversation with Sandra to validate that your case fits what we offer right now. If it fits, we go ahead. If not, we tell you straight.</p>`,
     cta: {
       heading: "Shall we start the pilot today?",
       text: "Try it for 30 days with your real clinic. If you don't recover the setup in recovered appointments, we'll refund you.",
@@ -211,9 +214,9 @@ const aiContent: Record<string, AiContent> = {
     description: "Línea de negocio de Auratech especializada en agentes de IA y automatización de procesos para pymes.",
     hero: {
       heading: "Automatizaciones con IA para pymes",
-      subheading: "Agentes conversacionales que responden, gestionan y venden 24/7. Especializados en clínicas estéticas y sector salud.",
+      subheading: "Agentes conversacionales que responden, gestionan y venden 24/7. Especializados en clínicas estéticas y sector salud. (Piloto — disponibilidad para demo, contáctanos para validar tu caso.)",
       ctaText: "Ver paquetes",
-      ctaSecondary: "Hablemos",
+      ctaSecondary: "Habla con Sandra",
     },
     layers: {
       heading: "Tres formas de trabajar con nosotros",
@@ -286,6 +289,7 @@ const aiContent: Record<string, AiContent> = {
       { question: "¿Hay permanencia?", answer: "No. Suscripción mensual cancelable con un mes de preaviso. La setup inicial es única y no se devuelve." },
       { question: "¿Cómo se paga?", answer: "Domiciliación SEPA o transferencia. Facturamos mensualmente. El setup se factura al comienzo del piloto." },
     ],
+    pilotSection: `<h2>¿Por qué hablamos de piloto?</h2><p>Cada implantación tiene un setup adaptado: tu clínica usa un software de gestión concreto, tiene un tono de marca propio, y protocolos pre-tratamiento que difieren de otra clínica. El agente tiene que aprender <strong>tu caso</strong>, no uno genérico.</p><p>Por eso la fase piloto es parte del producto, no un añadido comercial. Los primeros días validamos que el agente responde como tú quieres, que las integraciones con tu agenda funcionan, y que los protocolos RGPD para datos de salud están bien fijados.</p><p>No hay autoservicio de momento. Cada onboarding pasa por una conversación de 15 minutos con Sandra para validar que tu caso encaja con lo que ofrecemos hoy. Si encaja, vamos adelante. Si no, te lo decimos claro.</p>`,
     cta: {
       heading: "¿Empezamos el piloto hoy?",
       text: "Pruébalo durante 30 días con tu clínica real. Si no recuperas el setup en citas recuperadas, te devolvemos el dinero.",
@@ -410,8 +414,14 @@ async function main() {
         data: { items: c.faq },
       },
       {
-        type: "cta",
+        type: "rich-text",
         order: 8,
+        pageId: aiPage.id,
+        data: { content: c.pilotSection },
+      },
+      {
+        type: "cta",
+        order: 9,
         pageId: aiPage.id,
         data: {
           heading: c.cta.heading,
