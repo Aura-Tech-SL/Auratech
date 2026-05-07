@@ -1,40 +1,27 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
   ArrowLeft,
   Loader2,
   Save,
   Send,
   X,
+  Languages,
 } from "lucide-react";
 import Link from "next/link";
-import {
-  VisualCanvas,
-  arrayMove,
-  type CanvasBlock,
-} from "@/components/admin/page-editor/visual-canvas";
+import { useVariantState } from "@/components/admin/page-editor/use-variant-state";
+import { VariantColumn } from "@/components/admin/page-editor/variant-column";
 import { InspectorSidebar } from "@/components/admin/page-editor/inspector-sidebar";
-
-// ── Types ────────────────────────────────────────────
-
-interface BlockData {
-  _clientId: string;
-  id?: string;
-  type: string;
-  order: number;
-  data: Record<string, any>;
-  isVisible: boolean;
-}
 
 interface PageData {
   id: string;
   title: string;
   slug: string;
+  locale: string;
   description: string | null;
   status: string;
   blocks: Array<{
@@ -49,28 +36,31 @@ interface PageData {
   publishedAt: string | null;
 }
 
-let clientIdCounter = 0;
-function genClientId() {
-  return `block_${Date.now()}_${++clientIdCounter}`;
-}
-
-// ── Component ────────────────────────────────────────
+const ALL_LOCALES = ["ca", "en", "es"] as const;
+const LOCALE_LABEL: Record<string, string> = {
+  ca: "Català",
+  en: "English",
+  es: "Español",
+};
 
 export default function PageEditorPage() {
   const params = useParams();
-  const router = useRouter();
   const pageId = params.id as string;
 
+  const primary = useVariantState();
+  const compare = useVariantState();
+
   const [page, setPage] = useState<PageData | null>(null);
-  const [blocks, setBlocks] = useState<BlockData[]>([]);
+  const [comparePost, setComparePost] = useState<PageData | null>(null);
+  const [compareLocale, setCompareLocale] = useState<string | null>(null);
+  const [activeSide, setActiveSide] = useState<"left" | "right">("left");
+
   const [loading, setLoading] = useState(true);
+  const [compareLoading, setCompareLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-  const [titleEdit, setTitleEdit] = useState("");
-  const [localeEdit, setLocaleEdit] = useState("ca");
 
   const loadPage = useCallback(async () => {
     try {
@@ -78,107 +68,78 @@ export default function PageEditorPage() {
       if (!res.ok) throw new Error("Error carregant la pagina");
       const { data } = await res.json();
       setPage(data);
-      setTitleEdit(data.title);
-      setLocaleEdit(data.locale || "ca");
-      setBlocks(
-        data.blocks.map((b: any) => ({
-          _clientId: genClientId(),
-          id: b.id,
-          type: b.type,
-          order: b.order,
-          data: b.data || {},
-          isVisible: b.isVisible,
-        }))
-      );
+      primary.loadFromApi(data);
     } catch (err: any) {
       setError(err.message || "Error carregant");
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageId]);
 
   useEffect(() => {
     loadPage();
   }, [loadPage]);
 
-  function insertBlockAt(type: string, atIndex: number) {
-    const newBlock: BlockData = {
-      _clientId: genClientId(),
-      type,
-      order: atIndex,
-      data: {},
-      isVisible: true,
+  // Load the compare variant whenever the user picks one (or clear it).
+  useEffect(() => {
+    if (!compareLocale || !page) {
+      setComparePost(null);
+      compare.clear();
+      return;
+    }
+    let cancelled = false;
+    setCompareLoading(true);
+    fetch(`/api/pages?slug=${encodeURIComponent(page.slug)}`)
+      .then((r) => r.json())
+      .then(({ data }) => {
+        if (cancelled) return;
+        const sibling = (data ?? []).find(
+          (p: any) => p.locale === compareLocale,
+        );
+        if (sibling) {
+          // Fetch full row by id to get blocks (the list endpoint doesn't include them)
+          fetch(`/api/pages/${sibling.id}`)
+            .then((r) => r.json())
+            .then(({ data: full }) => {
+              if (cancelled) return;
+              setComparePost(full);
+              compare.loadFromApi(full);
+            });
+        } else {
+          // No sibling exists — set up an "empty" placeholder so the user
+          // can copy from the primary side to bootstrap a translation.
+          setComparePost(null);
+          compare.clear();
+          compare.setTitle(page.title); // hint
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setCompareLoading(false);
+      });
+    return () => {
+      cancelled = true;
     };
-    const next = [...blocks];
-    next.splice(atIndex, 0, newBlock);
-    setBlocks(next.map((b, i) => ({ ...b, order: i })));
-    setSelectedClientId(newBlock._clientId);
-  }
-
-  function removeBlock(clientId: string) {
-    setBlocks(blocks.filter((b) => b._clientId !== clientId));
-    if (selectedClientId === clientId) setSelectedClientId(null);
-  }
-
-  function duplicateBlock(clientId: string) {
-    const index = blocks.findIndex((b) => b._clientId === clientId);
-    if (index === -1) return;
-    const original = blocks[index];
-    const copy: BlockData = {
-      _clientId: genClientId(),
-      type: original.type,
-      order: index + 1,
-      data: JSON.parse(JSON.stringify(original.data)),
-      isVisible: original.isVisible,
-    };
-    const next = [...blocks];
-    next.splice(index + 1, 0, copy);
-    setBlocks(next.map((b, i) => ({ ...b, order: i })));
-    setSelectedClientId(copy._clientId);
-  }
-
-  function reorderBlocks(oldIndex: number, newIndex: number) {
-    const moved = arrayMove(blocks, oldIndex, newIndex);
-    setBlocks(moved.map((b, i) => ({ ...b, order: i })));
-  }
-
-  function toggleVisibility(clientId: string) {
-    setBlocks(
-      blocks.map((b) =>
-        b._clientId === clientId ? { ...b, isVisible: !b.isVisible } : b
-      )
-    );
-  }
-
-  function updateBlockData(clientId: string, data: Record<string, any>) {
-    setBlocks(
-      blocks.map((b) => (b._clientId === clientId ? { ...b, data } : b))
-    );
-  }
-
-  const selectedBlock = blocks.find((b) => b._clientId === selectedClientId) ?? null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [compareLocale, page]);
 
   async function handleSave() {
+    if (!page) return;
     setSaving(true);
     setError("");
     setSuccess("");
-
     try {
-      // Update title and locale if changed
-      if (titleEdit !== page?.title || localeEdit !== ((page as any)?.locale || "ca")) {
-        await fetch(`/api/pages/${pageId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: titleEdit, locale: localeEdit }),
-        });
-      }
-
-      // Save blocks
+      // Primary
+      await fetch(`/api/pages/${pageId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: primary.title }),
+      });
       const res = await fetch(`/api/pages/${pageId}/blocks`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          blocks: blocks.map((b, i) => ({
+          blocks: primary.blocks.map((b, i) => ({
             id: b.id,
             type: b.type,
             order: i,
@@ -187,10 +148,58 @@ export default function PageEditorPage() {
           })),
         }),
       });
-
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Error desant");
+        throw new Error(data.error || "Error desant primari");
+      }
+
+      // Compare side: if the variant doesn't exist yet, create it first.
+      if (compareLocale) {
+        let compareId = comparePost?.id;
+        if (!compareId) {
+          const createRes = await fetch(`/api/pages`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: compare.title || page.title,
+              slug: page.slug,
+              locale: compareLocale,
+            }),
+          });
+          if (!createRes.ok) {
+            const data = await createRes.json();
+            throw new Error(data.error || "Error creant variant");
+          }
+          const { data: created } = await createRes.json();
+          compareId = created.id;
+          setComparePost(created);
+        } else {
+          await fetch(`/api/pages/${compareId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title: compare.title }),
+          });
+        }
+
+        if (compare.blocks.length > 0 && compareId) {
+          const res2 = await fetch(`/api/pages/${compareId}/blocks`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              blocks: compare.blocks.map((b, i) => ({
+                id: b.id,
+                type: b.type,
+                order: i,
+                data: b.data,
+                isVisible: b.isVisible,
+              })),
+            }),
+          });
+          if (!res2.ok) {
+            const data = await res2.json();
+            throw new Error(data.error || "Error desant compare");
+          }
+        }
       }
 
       setSuccess("Canvis desats correctament");
@@ -206,21 +215,14 @@ export default function PageEditorPage() {
   async function handlePublish() {
     setPublishing(true);
     setError("");
-
     try {
-      // Save first
       await handleSave();
-
-      const res = await fetch(`/api/pages/${pageId}/publish`, {
-        method: "PUT",
-      });
-
+      const res = await fetch(`/api/pages/${pageId}/publish`, { method: "PUT" });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || "Error publicant");
       }
-
-      setSuccess("Pagina publicada!");
+      setSuccess("Pàgina publicada!");
       setTimeout(() => setSuccess(""), 3000);
       await loadPage();
     } catch (err: any) {
@@ -228,6 +230,17 @@ export default function PageEditorPage() {
     } finally {
       setPublishing(false);
     }
+  }
+
+  function copyPrimaryToCompare() {
+    compare.setTitle(primary.title);
+    compare.setBlocksRaw(
+      primary.blocks.map((b) => ({
+        type: b.type,
+        data: b.data,
+        isVisible: b.isVisible,
+      })),
+    );
   }
 
   if (loading) {
@@ -248,6 +261,20 @@ export default function PageEditorPage() {
       </div>
     );
   }
+
+  const availableCompareLocales = ALL_LOCALES.filter((l) => l !== page.locale);
+
+  // Inspector reads from active side. Block changes propagate via the active
+  // side's updater so each variant stays independent.
+  const inspectorBlock =
+    activeSide === "left" ? primary.selectedBlock : compare.selectedBlock;
+  const inspectorOnChange = (data: Record<string, unknown>) => {
+    if (activeSide === "left" && primary.selectedBlock) {
+      primary.updateBlockData(primary.selectedBlock._clientId, data);
+    } else if (activeSide === "right" && compare.selectedBlock) {
+      compare.updateBlockData(compare.selectedBlock._clientId, data);
+    }
+  };
 
   const documentTab = (
     <div className="space-y-4">
@@ -279,17 +306,32 @@ export default function PageEditorPage() {
       </div>
       <div className="space-y-1.5">
         <label className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">
-          Idioma
+          Idioma actiu
+        </label>
+        <div className="text-sm text-foreground/70">
+          {LOCALE_LABEL[page.locale]} ({page.locale.toUpperCase()})
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        <label className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">
+          Comparar amb
         </label>
         <select
-          value={localeEdit}
-          onChange={(e) => setLocaleEdit(e.target.value)}
-          className="w-full h-8 rounded-md border border-border bg-secondary/50 px-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+          value={compareLocale ?? ""}
+          onChange={(e) => setCompareLocale(e.target.value || null)}
+          className="w-full h-8 rounded-md border border-border bg-secondary/50 px-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
         >
-          <option value="ca">Català</option>
-          <option value="en">English</option>
-          <option value="es">Español</option>
+          <option value="">— Una sola variant —</option>
+          {availableCompareLocales.map((l) => (
+            <option key={l} value={l}>
+              {LOCALE_LABEL[l]} ({l.toUpperCase()})
+            </option>
+          ))}
         </select>
+        <p className="text-[10px] text-foreground/40">
+          Quan en seleccionis una, apareixerà al costat per editar les dues
+          variants alhora.
+        </p>
       </div>
       <div className="space-y-1.5">
         <label className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">
@@ -321,7 +363,14 @@ export default function PageEditorPage() {
             </Button>
           </Link>
           <span className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">
-            Editor de pàgina · {localeEdit.toUpperCase()}
+            Editor de pàgina
+            {compareLocale && (
+              <>
+                {" "}· {page.locale.toUpperCase()} ↔ {compareLocale.toUpperCase()}
+                <Languages className="ml-1.5 inline h-3 w-3 align-text-bottom" />
+              </>
+            )}
+            {!compareLocale && <> · {page.locale.toUpperCase()}</>}
           </span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -356,13 +405,15 @@ export default function PageEditorPage() {
         </div>
       </div>
 
-      {/* Messages */}
       {(error || success) && (
         <div className="px-4 sm:px-6 lg:px-8 pt-3">
           {error && (
             <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-4 py-3 flex items-center justify-between">
               {error}
-              <button onClick={() => setError("")} className="text-destructive/60 hover:text-destructive">
+              <button
+                onClick={() => setError("")}
+                className="text-destructive/60 hover:text-destructive"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -370,7 +421,10 @@ export default function PageEditorPage() {
           {success && (
             <div className="text-sm text-accent bg-accent/10 border border-accent/20 rounded-md px-4 py-3 flex items-center justify-between">
               {success}
-              <button onClick={() => setSuccess("")} className="text-accent/60 hover:text-accent">
+              <button
+                onClick={() => setSuccess("")}
+                className="text-accent/60 hover:text-accent"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -378,50 +432,93 @@ export default function PageEditorPage() {
         </div>
       )}
 
-      {/* 2-column layout: canvas (left) + inspector (right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-4 px-4 sm:px-6 lg:px-8 py-6">
-        <div className="min-w-0 space-y-6">
-          {/* Title (editable, big) */}
-          <div className="space-y-1">
-            <p className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">
-              Títol
-            </p>
-            <Input
-              value={titleEdit}
-              onChange={(e) => setTitleEdit(e.target.value)}
-              placeholder="Sense títol"
-              className="!text-3xl !h-auto !py-2 !px-2 !font-light !tracking-tight border-transparent hover:border-border focus:border-accent/50 transition-colors bg-transparent"
-            />
-            <p className="text-xs text-foreground/40 font-mono pl-2">
-              /{localeEdit}/{page.slug}
-            </p>
-          </div>
-
-          {/* Visual canvas */}
-          <VisualCanvas
-            blocks={blocks as CanvasBlock[]}
-            selectedClientId={selectedClientId}
-            onSelect={setSelectedClientId}
-            onChange={updateBlockData}
-            onReorder={reorderBlocks}
-            onToggleVisibility={toggleVisibility}
-            onDelete={removeBlock}
-            onDuplicate={duplicateBlock}
-            onInsert={insertBlockAt}
+      <div
+        className={`grid grid-cols-1 gap-6 px-4 sm:px-6 lg:px-8 py-6 ${
+          compareLocale
+            ? "lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_320px]"
+            : "lg:grid-cols-[minmax(0,1fr)_320px]"
+        }`}
+      >
+        {/* Primary variant */}
+        <div onClick={() => setActiveSide("left")}>
+          <VariantColumn
+            localeLabel={page.locale.toUpperCase()}
+            title={primary.title}
+            onTitleChange={primary.setTitle}
+            pathHint={`/${page.locale}/${page.slug}`}
+            blocks={primary.blocks}
+            selectedClientId={
+              activeSide === "left" ? primary.selectedClientId : null
+            }
+            onSelect={(id) => {
+              setActiveSide("left");
+              primary.setSelectedClientId(id);
+              compare.setSelectedClientId(null);
+            }}
+            onChange={primary.updateBlockData}
+            onReorder={primary.reorderBlocks}
+            onToggleVisibility={primary.toggleVisibility}
+            onDelete={primary.removeBlock}
+            onDuplicate={primary.duplicateBlock}
+            onInsert={primary.insertBlockAt}
           />
         </div>
 
-        {/* Inspector sidebar — sticky, always visible */}
+        {/* Compare variant */}
+        {compareLocale && (
+          <div onClick={() => setActiveSide("right")}>
+            {compareLoading ? (
+              <div className="flex h-32 items-center justify-center">
+                <Loader2 className="h-5 w-5 animate-spin text-foreground/30" />
+              </div>
+            ) : (
+              <VariantColumn
+                localeLabel={compareLocale.toUpperCase()}
+                title={compare.title}
+                onTitleChange={compare.setTitle}
+                pathHint={
+                  comparePost
+                    ? `/${compareLocale}/${comparePost.slug}`
+                    : `(no existeix; es crearà al desar)`
+                }
+                statusBadge={
+                  !comparePost ? (
+                    <Badge variant="outline" className="text-[10px]">
+                      Variant nova
+                    </Badge>
+                  ) : null
+                }
+                blocks={compare.blocks}
+                selectedClientId={
+                  activeSide === "right" ? compare.selectedClientId : null
+                }
+                onSelect={(id) => {
+                  setActiveSide("right");
+                  compare.setSelectedClientId(id);
+                  primary.setSelectedClientId(null);
+                }}
+                onChange={compare.updateBlockData}
+                onReorder={compare.reorderBlocks}
+                onToggleVisibility={compare.toggleVisibility}
+                onDelete={compare.removeBlock}
+                onDuplicate={compare.duplicateBlock}
+                onInsert={compare.insertBlockAt}
+                onCopyFromOther={copyPrimaryToCompare}
+                copyFromLabel={page.locale}
+              />
+            )}
+          </div>
+        )}
+
         <div className="hidden lg:block">
           <InspectorSidebar
             documentTab={documentTab}
             selectedBlock={
-              selectedBlock
+              inspectorBlock
                 ? {
-                    type: selectedBlock.type,
-                    data: selectedBlock.data,
-                    onChange: (data) =>
-                      updateBlockData(selectedBlock._clientId, data),
+                    type: inspectorBlock.type,
+                    data: inspectorBlock.data,
+                    onChange: inspectorOnChange,
                   }
                 : null
             }
