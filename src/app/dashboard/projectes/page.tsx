@@ -1,63 +1,83 @@
-"use client";
-
-import { motion } from "framer-motion";
 import Link from "next/link";
-import { FolderKanban, Calendar, ArrowRight } from "lucide-react";
+import { redirect } from "next/navigation";
+import { FolderKanban, Calendar, ArrowRight, MessageSquare, Mail } from "lucide-react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getStatusColor, getStatusLabel, formatDate } from "@/lib/utils";
+import { buildWhatsappLink } from "@/lib/whatsapp";
 
-const projects = [
-  {
-    id: "1",
-    title: "Redisseny portal web corporatiu",
-    description: "Redisseny complet del portal web amb nova imatge de marca i funcionalitats modernes.",
-    status: "IN_PROGRESS",
-    progress: 65,
-    category: "Web",
-    startDate: "2025-11-01",
-    endDate: "2026-03-15",
-  },
-  {
-    id: "2",
-    title: "App mòbil de reserves",
-    description: "Aplicació mòbil per gestionar reserves i cites amb notificacions automàtiques.",
-    status: "REVIEW",
-    progress: 90,
-    category: "Mòbil",
-    startDate: "2025-10-15",
-    endDate: "2026-02-28",
-  },
-  {
-    id: "3",
-    title: "Dashboard d'analytics",
-    description: "Panell de control amb mètriques de negoci en temps real i informes automatitzats.",
-    status: "PENDING",
-    progress: 15,
-    category: "Web App",
-    startDate: "2026-02-01",
-    endDate: "2026-06-30",
-  },
-];
+export const dynamic = "force-dynamic";
 
-export default function ProjectesPage() {
+export default async function ProjectesPage() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) redirect("/login");
+
+  const userId = session.user.id;
+  let projects: Awaited<ReturnType<typeof prisma.project.findMany>> = [];
+  try {
+    projects = await prisma.project.findMany({
+      where: { userId },
+      orderBy: { updatedAt: "desc" },
+    });
+  } catch {
+    // DB hiccup — render empty state instead of 500
+  }
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold">Els meus projectes</h1>
-        <p className="text-muted-foreground mt-1">Segueix l&apos;estat de tots els teus projectes</p>
+        <p className="text-muted-foreground mt-1">
+          Segueix l&apos;estat de tots els teus projectes
+        </p>
       </div>
 
-      <div className="space-y-4">
-        {projects.map((project, index) => (
-          <motion.div
-            key={project.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-          >
-            <Card>
+      {projects.length === 0 ? (
+        <Card>
+          <CardContent className="p-10 text-center space-y-4">
+            <div className="h-14 w-14 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+              <FolderKanban className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold">Encara no tens projectes</h3>
+              <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
+                Quan tinguem un projecte en marxa amb tu, apareixerà aquí amb
+                l&apos;estat, fites i documents associats. Per posar-lo en marxa,
+                contacta&apos;ns.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3 justify-center pt-2">
+              <a
+                href="mailto:sandra.romero@auratech.cat"
+                className="inline-flex items-center gap-2 bg-foreground text-background px-5 py-2.5 rounded-md text-sm font-medium hover:bg-foreground/90 transition-colors"
+              >
+                <Mail className="h-4 w-4" />
+                Email Sandra
+              </a>
+              <a
+                href={buildWhatsappLink(
+                  "Hola, soc client d'Auratech i voldria iniciar un projecte.",
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-cta="whatsapp"
+                data-cta-location="dashboard_projects_empty"
+                className="inline-flex items-center gap-2 border border-border px-5 py-2.5 rounded-md text-sm font-medium hover:bg-muted transition-colors"
+              >
+                <MessageSquare className="h-4 w-4" />
+                WhatsApp
+              </a>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {projects.map((project) => (
+            <Card key={project.id}>
               <CardContent className="p-6">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                   <div className="flex-1">
@@ -66,17 +86,27 @@ export default function ProjectesPage() {
                         <FolderKanban className="h-5 w-5 text-primary" />
                       </div>
                       <div>
-                        <h3 className="font-semibold">{project.title}</h3>
-                        <span className="text-xs text-muted-foreground">{project.category}</span>
+                        <h3 className="font-semibold">{project.name}</h3>
+                        <span className="text-xs text-muted-foreground">
+                          {project.category}
+                        </span>
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-3">{project.description}</p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-3.5 w-3.5" />
-                        {formatDate(project.startDate)} - {formatDate(project.endDate)}
+                    {project.description && (
+                      <p className="text-sm text-muted-foreground mb-3">
+                        {project.description}
+                      </p>
+                    )}
+                    {(project.startDate || project.endDate) && (
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-3.5 w-3.5" />
+                          {project.startDate ? formatDate(project.startDate) : "—"}
+                          {" - "}
+                          {project.endDate ? formatDate(project.endDate) : "—"}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
 
                   <div className="flex flex-col items-end gap-3 min-w-[160px]">
@@ -105,9 +135,9 @@ export default function ProjectesPage() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
