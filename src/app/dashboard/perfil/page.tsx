@@ -261,7 +261,144 @@ export default function PerfilPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* GDPR / data rights */}
+        <DataRightsSection />
       </div>
     </div>
+  );
+}
+
+function DataRightsSection() {
+  const [confirmText, setConfirmText] = useState("");
+  const [state, setState] = useState<{
+    exporting?: boolean;
+    deleting?: boolean;
+    showDelete?: boolean;
+    error?: string;
+    message?: string;
+  }>({});
+
+  async function handleExport() {
+    setState({ exporting: true });
+    try {
+      const res = await fetch("/api/profile/export");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Error en l'exportació");
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `auratech-data-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setState({ message: "Descàrrega iniciada" });
+      setTimeout(() => setState((s) => ({ ...s, message: undefined })), 3000);
+    } catch (e) {
+      setState({ error: (e as Error).message });
+    }
+  }
+
+  async function handleDelete() {
+    setState({ deleting: true });
+    try {
+      const res = await fetch("/api/profile/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirmation: confirmText }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Error en l'eliminació");
+      }
+      // Force a logout-style redirect — the session is now pointing at an
+      // anonymised user; reloading clears it.
+      window.location.href = "/api/auth/signout?callbackUrl=/";
+    } catch (e) {
+      setState({ error: (e as Error).message, deleting: false });
+    }
+  }
+
+  return (
+    <Card className="lg:col-span-3">
+      <CardHeader>
+        <CardTitle className="text-lg">Les meves dades</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div>
+          <h4 className="font-medium mb-1">Exportar les meves dades</h4>
+          <p className="text-sm text-muted-foreground mb-3">
+            Descarrega un JSON amb tota la teva informació desada al sistema
+            (perfil, projectes, factures, missatges, contactes). Compatible amb
+            l&apos;Article 20 del RGPD.
+          </p>
+          <Button
+            variant="outline"
+            onClick={handleExport}
+            disabled={state.exporting}
+          >
+            {state.exporting ? "Generant..." : "Descarregar dades"}
+          </Button>
+        </div>
+
+        <div className="border-t pt-6">
+          <h4 className="font-medium mb-1">Eliminar el meu compte</h4>
+          <p className="text-sm text-muted-foreground mb-3">
+            Anonimitzem el teu compte: l&apos;email, nom i telèfon es
+            substitueixen, i no podràs tornar a iniciar sessió. Conservem les
+            factures i registres econòmics que la legislació espanyola exigeix
+            mantenir 6 anys (Article 6.1.c RGPD). Aquesta acció no es pot
+            desfer.
+          </p>
+          {!state.showDelete ? (
+            <Button
+              variant="outline"
+              onClick={() => setState({ showDelete: true })}
+              className="text-destructive hover:bg-destructive/10"
+            >
+              Eliminar el meu compte
+            </Button>
+          ) : (
+            <div className="space-y-3 p-4 border border-destructive/30 rounded-md bg-destructive/5">
+              <p className="text-sm">
+                Per confirmar, escriu <strong>ELIMINAR</strong> a la casella:
+              </p>
+              <Input
+                value={confirmText}
+                onChange={(e) => setConfirmText(e.target.value)}
+                placeholder="ELIMINAR"
+                disabled={state.deleting}
+              />
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={handleDelete}
+                  disabled={confirmText !== "ELIMINAR" || state.deleting}
+                  className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                >
+                  {state.deleting ? "Eliminant..." : "Confirmar eliminació"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => setState({})}
+                  disabled={state.deleting}
+                >
+                  Cancel·lar
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {state.message && (
+          <p className="text-sm text-green-600">{state.message}</p>
+        )}
+        {state.error && (
+          <p className="text-sm text-destructive">{state.error}</p>
+        )}
+      </CardContent>
+    </Card>
   );
 }
