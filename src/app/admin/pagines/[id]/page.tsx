@@ -2,69 +2,23 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { BlockEditorForm } from "@/components/admin/block-editor-form";
 import {
   ArrowLeft,
-  ChevronDown,
-  ChevronUp,
-  Eye,
-  EyeOff,
-  GripVertical,
   Loader2,
-  Plus,
   Save,
   Send,
-  Trash2,
   X,
-  Type,
-  Image,
-  Layout,
-  Code,
-  Quote,
-  BarChart3,
-  Video,
-  Minus,
-  List,
-  CreditCard,
-  Users,
-  Mail,
-  Grid3X3,
-  Space,
-  Images,
-  MousePointerClick,
 } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
-
-// ── Block type registry ──────────────────────────────
-
-const BLOCK_TYPES = [
-  { type: "hero", label: "Hero", icon: Layout, category: "Estructura" },
-  { type: "rich-text", label: "Text enriquit", icon: Type, category: "Contingut" },
-  { type: "image", label: "Imatge", icon: Image, category: "Contingut" },
-  { type: "gallery", label: "Galeria", icon: Images, category: "Contingut" },
-  { type: "video", label: "Video", icon: Video, category: "Contingut" },
-  { type: "code", label: "Codi", icon: Code, category: "Contingut" },
-  { type: "cta", label: "Crida a l'accio", icon: MousePointerClick, category: "Estructura" },
-  { type: "features-grid", label: "Graella de funcions", icon: Grid3X3, category: "Estructura" },
-  { type: "testimonial", label: "Testimoni", icon: Quote, category: "Social" },
-  { type: "stats", label: "Estadistiques", icon: BarChart3, category: "Estructura" },
-  { type: "divider", label: "Divisor", icon: Minus, category: "Estructura" },
-  { type: "accordion", label: "Acordio", icon: List, category: "Contingut" },
-  { type: "pricing", label: "Preus", icon: CreditCard, category: "Estructura" },
-  { type: "team-grid", label: "Equip", icon: Users, category: "Social" },
-  { type: "contact-form", label: "Formulari de contacte", icon: Mail, category: "Estructura" },
-  { type: "logo-grid", label: "Graella de logos", icon: Grid3X3, category: "Social" },
-  { type: "spacer", label: "Espaiador", icon: Space, category: "Estructura" },
-];
-
-function getBlockMeta(type: string) {
-  return BLOCK_TYPES.find((bt) => bt.type === type) || { type, label: type, icon: Code, category: "Altres" };
-}
+import {
+  VisualCanvas,
+  arrayMove,
+  type CanvasBlock,
+} from "@/components/admin/page-editor/visual-canvas";
+import { SidePanel } from "@/components/admin/page-editor/side-panel";
 
 // ── Types ────────────────────────────────────────────
 
@@ -114,8 +68,7 @@ export default function PageEditorPage() {
   const [publishing, setPublishing] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [expandedBlock, setExpandedBlock] = useState<string | null>(null);
-  const [showTypePicker, setShowTypePicker] = useState(false);
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [titleEdit, setTitleEdit] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
   const [localeEdit, setLocaleEdit] = useState("ca");
@@ -149,34 +102,45 @@ export default function PageEditorPage() {
     loadPage();
   }, [loadPage]);
 
-  function addBlock(type: string) {
+  function insertBlockAt(type: string, atIndex: number) {
     const newBlock: BlockData = {
       _clientId: genClientId(),
       type,
-      order: blocks.length,
+      order: atIndex,
       data: {},
       isVisible: true,
     };
-    setBlocks([...blocks, newBlock]);
-    setExpandedBlock(newBlock._clientId);
-    setShowTypePicker(false);
+    const next = [...blocks];
+    next.splice(atIndex, 0, newBlock);
+    setBlocks(next.map((b, i) => ({ ...b, order: i })));
+    setSelectedClientId(newBlock._clientId);
   }
 
   function removeBlock(clientId: string) {
     setBlocks(blocks.filter((b) => b._clientId !== clientId));
-    if (expandedBlock === clientId) setExpandedBlock(null);
+    if (selectedClientId === clientId) setSelectedClientId(null);
   }
 
-  function moveBlock(clientId: string, direction: "up" | "down") {
+  function duplicateBlock(clientId: string) {
     const index = blocks.findIndex((b) => b._clientId === clientId);
     if (index === -1) return;
-    if (direction === "up" && index === 0) return;
-    if (direction === "down" && index === blocks.length - 1) return;
+    const original = blocks[index];
+    const copy: BlockData = {
+      _clientId: genClientId(),
+      type: original.type,
+      order: index + 1,
+      data: JSON.parse(JSON.stringify(original.data)),
+      isVisible: original.isVisible,
+    };
+    const next = [...blocks];
+    next.splice(index + 1, 0, copy);
+    setBlocks(next.map((b, i) => ({ ...b, order: i })));
+    setSelectedClientId(copy._clientId);
+  }
 
-    const newBlocks = [...blocks];
-    const swapIndex = direction === "up" ? index - 1 : index + 1;
-    [newBlocks[index], newBlocks[swapIndex]] = [newBlocks[swapIndex], newBlocks[index]];
-    setBlocks(newBlocks.map((b, i) => ({ ...b, order: i })));
+  function reorderBlocks(oldIndex: number, newIndex: number) {
+    const moved = arrayMove(blocks, oldIndex, newIndex);
+    setBlocks(moved.map((b, i) => ({ ...b, order: i })));
   }
 
   function toggleVisibility(clientId: string) {
@@ -192,6 +156,8 @@ export default function PageEditorPage() {
       blocks.map((b) => (b._clientId === clientId ? { ...b, data } : b))
     );
   }
+
+  const selectedBlock = blocks.find((b) => b._clientId === selectedClientId) ?? null;
 
   async function handleSave() {
     setSaving(true);
@@ -283,8 +249,6 @@ export default function PageEditorPage() {
       </div>
     );
   }
-
-  const categories = Array.from(new Set(BLOCK_TYPES.map((bt) => bt.category)));
 
   return (
     <div className="space-y-6">
@@ -395,167 +359,28 @@ export default function PageEditorPage() {
         </div>
       )}
 
-      {/* Blocks list */}
-      <div className="space-y-3">
-        {blocks.length === 0 && (
-          <Card>
-            <CardContent className="py-16 text-center">
-              <Layout className="h-12 w-12 text-foreground/20 mx-auto mb-4" />
-              <p className="text-foreground/50 text-lg">Encara no hi ha blocs</p>
-              <p className="text-foreground/30 text-sm mt-1">
-                Afegeix blocs per construir el contingut de la pagina
-              </p>
-            </CardContent>
-          </Card>
-        )}
+      {/* Visual canvas */}
+      <VisualCanvas
+        blocks={blocks as CanvasBlock[]}
+        selectedClientId={selectedClientId}
+        onSelect={setSelectedClientId}
+        onReorder={reorderBlocks}
+        onToggleVisibility={toggleVisibility}
+        onDelete={removeBlock}
+        onDuplicate={duplicateBlock}
+        onInsert={insertBlockAt}
+      />
 
-        {blocks.map((block, index) => {
-          const meta = getBlockMeta(block.type);
-          const Icon = meta.icon;
-          const isExpanded = expandedBlock === block._clientId;
-
-          return (
-            <Card
-              key={block._clientId}
-              className={cn(
-                "transition-all",
-                !block.isVisible && "opacity-50",
-                isExpanded && "border-accent/30"
-              )}
-            >
-              {/* Block header */}
-              <div
-                className="flex items-center gap-3 px-4 py-3 cursor-pointer select-none"
-                onClick={() =>
-                  setExpandedBlock(isExpanded ? null : block._clientId)
-                }
-              >
-                <GripVertical className="h-4 w-4 text-foreground/20 shrink-0" />
-                <Icon className="h-4 w-4 text-foreground/50 shrink-0" />
-                <span className="text-sm font-medium flex-1 truncate">
-                  {meta.label}
-                </span>
-
-                {/* Block actions */}
-                <div
-                  className="flex items-center gap-1"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    onClick={() => moveBlock(block._clientId, "up")}
-                    disabled={index === 0}
-                    className="p-1.5 text-foreground/30 hover:text-foreground disabled:opacity-20 transition-colors"
-                    title="Moure amunt"
-                  >
-                    <ChevronUp className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => moveBlock(block._clientId, "down")}
-                    disabled={index === blocks.length - 1}
-                    className="p-1.5 text-foreground/30 hover:text-foreground disabled:opacity-20 transition-colors"
-                    title="Moure avall"
-                  >
-                    <ChevronDown className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => toggleVisibility(block._clientId)}
-                    className="p-1.5 text-foreground/30 hover:text-foreground transition-colors"
-                    title={block.isVisible ? "Amagar" : "Mostrar"}
-                  >
-                    {block.isVisible ? (
-                      <Eye className="h-4 w-4" />
-                    ) : (
-                      <EyeOff className="h-4 w-4" />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => removeBlock(block._clientId)}
-                    className="p-1.5 text-foreground/30 hover:text-destructive transition-colors"
-                    title="Eliminar bloc"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-
-                <ChevronDown
-                  className={cn(
-                    "h-4 w-4 text-foreground/30 shrink-0 transition-transform",
-                    isExpanded && "rotate-180"
-                  )}
-                />
-              </div>
-
-              {/* Block editor */}
-              {isExpanded && (
-                <CardContent className="pt-0 pb-5 px-5 border-t border-border/50">
-                  <div className="pt-4">
-                    <BlockEditorForm
-                      type={block.type}
-                      data={block.data}
-                      onChange={(data) => updateBlockData(block._clientId, data)}
-                    />
-                  </div>
-                </CardContent>
-              )}
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Add block button */}
-      <div className="relative">
-        <Button
-          variant="outline"
-          onClick={() => setShowTypePicker(!showTypePicker)}
-          className="w-full gap-2 border-dashed h-12"
-        >
-          <Plus className="h-4 w-4" />
-          Afegir bloc
-        </Button>
-
-        {/* Block type picker */}
-        {showTypePicker && (
-          <Card className="absolute left-0 right-0 top-full mt-2 z-50 shadow-xl">
-            <CardHeader className="pb-3 flex flex-row items-center justify-between">
-              <CardTitle className="text-base">Escull un tipus de bloc</CardTitle>
-              <button
-                onClick={() => setShowTypePicker(false)}
-                className="text-foreground/30 hover:text-foreground"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </CardHeader>
-            <CardContent className="pb-4">
-              {categories.map((cat) => (
-                <div key={cat} className="mb-4 last:mb-0">
-                  <p className="text-xs font-semibold text-foreground/40 uppercase tracking-wider mb-2">
-                    {cat}
-                  </p>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                    {BLOCK_TYPES.filter((bt) => bt.category === cat).map(
-                      (bt) => {
-                        const BtIcon = bt.icon;
-                        return (
-                          <button
-                            key={bt.type}
-                            onClick={() => addBlock(bt.type)}
-                            className="flex flex-col items-center gap-2 p-3 rounded-lg border border-border/50 hover:border-accent/30 hover:bg-accent/5 transition-colors text-center"
-                          >
-                            <BtIcon className="h-5 w-5 text-foreground/50" />
-                            <span className="text-xs text-foreground/70">
-                              {bt.label}
-                            </span>
-                          </button>
-                        );
-                      }
-                    )}
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      {/* Side panel — slides in when a block is selected */}
+      {selectedBlock && (
+        <SidePanel
+          blockType={selectedBlock.type}
+          blockData={selectedBlock.data}
+          isVisible={!!selectedClientId}
+          onChange={(data) => updateBlockData(selectedBlock._clientId, data)}
+          onClose={() => setSelectedClientId(null)}
+        />
+      )}
     </div>
   );
 }
