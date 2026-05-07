@@ -99,6 +99,11 @@ function ContactePageContent() {
               </div>
 
               <div>
+                <SectionLabel className="mb-4">{t("locationLabel2")}</SectionLabel>
+                <p className="text-lg">{t("location2")}</p>
+              </div>
+
+              <div>
                 <SectionLabel className="mb-4">{t("scheduleLabel")}</SectionLabel>
                 <div className="space-y-1">
                   <p className="text-sm">{t("weekdays")}</p>

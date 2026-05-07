@@ -4,10 +4,11 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowUpRight } from "lucide-react";
+import { Menu, X, ArrowUpRight, MessageCircle } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { LanguageSelector } from "@/components/layout/language-selector";
 import { cn } from "@/lib/utils";
+import { buildWhatsappLink } from "@/lib/whatsapp";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -59,11 +60,22 @@ export function Header() {
             ))}
           </div>
 
-          {/* CTA + Language + Mobile menu button */}
-          <div className="flex items-center gap-4">
+          {/* CTA + WhatsApp + Language + Mobile menu button */}
+          <div className="flex items-center gap-3">
             <div className="hidden sm:block">
               <LanguageSelector />
             </div>
+            <a
+              href={buildWhatsappLink("Hola, voldria saber més sobre Auratech.")}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-cta="whatsapp"
+              data-cta-location="header"
+              aria-label="WhatsApp"
+              className="hidden sm:inline-flex items-center justify-center w-10 h-10 rounded-md border border-border text-foreground/60 hover:text-accent hover:border-accent/40 transition-colors"
+            >
+              <MessageCircle className="h-4 w-4" />
+            </a>
             <Link
               href="/contacte"
               className="hidden sm:flex items-center gap-1.5 font-mono text-[11px] tracking-wider uppercase bg-foreground text-background px-5 py-2 rounded-md hover:bg-foreground/90 transition-colors duration-200"
@@ -120,6 +132,17 @@ export function Header() {
                   <div className="py-3">
                     <LanguageSelector />
                   </div>
+                  <a
+                    href={buildWhatsappLink("Hola, voldria saber més sobre Auratech.")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-cta="whatsapp"
+                    data-cta-location="header_mobile"
+                    className="flex items-center justify-center gap-2 border border-border py-3 rounded-md font-mono text-[13px] tracking-wider uppercase text-foreground/70"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    WhatsApp
+                  </a>
                   <Link
                     href="/contacte"
                     className="flex items-center justify-center gap-2 bg-foreground text-background py-3 rounded-md font-mono text-[13px] tracking-wider uppercase"

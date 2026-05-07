@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ArrowRight, Bot, Sparkles, Check, MessageCircle } from "lucide-react";
 import { SectionLabel } from "@/components/ui/section-label";
+import { buildWhatsappLink } from "@/lib/whatsapp";
 
 export function HomeAiSpotlight() {
   const t = useTranslations("home");
@@ -64,13 +65,19 @@ export function HomeAiSpotlight() {
                 {t("aiCtaPrimary")}
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
-              <Link
-                href="/contacte?subject=Pilot+IA+Cl%C3%ADniques"
+              <a
+                href={buildWhatsappLink(
+                  "Hola Sandra, m'interessa el pilot d'IA per a la meva clínica."
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-cta="whatsapp"
+                data-cta-location="ai_spotlight"
                 className="inline-flex items-center gap-2 border border-border bg-transparent text-foreground px-6 py-3 rounded-md font-mono text-xs uppercase tracking-wider hover:bg-foreground/5 transition-colors"
               >
                 <MessageCircle className="h-3.5 w-3.5" />
                 {t("aiCtaSecondary")}
-              </Link>
+              </a>
             </div>
           </motion.div>
 

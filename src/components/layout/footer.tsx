@@ -2,8 +2,9 @@
 
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, MessageCircle } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+import { buildWhatsappLink } from "@/lib/whatsapp";
 
 export function Footer() {
   const t = useTranslations("footer");
@@ -43,8 +44,19 @@ export function Footer() {
             </p>
             <div className="space-y-2 font-mono text-[12px] text-foreground/30">
               <p>info@auratech.cat</p>
-              <p>Vic, Catalunya</p>
+              <p>Vic, Catalunya · Avilés, Astúries</p>
             </div>
+            <a
+              href={buildWhatsappLink("Hola, contacto des d'auratech.cat.")}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-cta="whatsapp"
+              data-cta-location="footer"
+              className="inline-flex items-center gap-2 text-sm text-foreground/50 hover:text-accent transition-colors"
+            >
+              <MessageCircle className="h-4 w-4" />
+              WhatsApp
+            </a>
           </div>
 
           {/* Services */}

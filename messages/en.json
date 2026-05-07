@@ -347,6 +347,8 @@
     "emailLabel": "Email",
     "locationLabel": "Where we are",
     "location": "Vic, Catalonia",
+    "locationLabel2": "Commercial operations",
+    "location2": "Avilés, Asturias",
     "scheduleLabel": "Hours",
     "weekdays": "Mon-Fri: 9:00 — 18:00",
     "weekend": "Weekends: We rest",
