@@ -7,6 +7,7 @@ import { prisma } from "@/lib/db";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { getStatusColor, getStatusLabel, formatDate } from "@/lib/utils";
 import { buildWhatsappLink } from "@/lib/whatsapp";
 
@@ -29,25 +30,28 @@ export default async function ProjectesPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Els meus projectes</h1>
-        <p className="text-muted-foreground mt-1">
-          Segueix l&apos;estat de tots els teus projectes
-        </p>
-      </div>
+      <AdminPageHeader
+        label="Espai client"
+        title="Els meus projectes"
+        description="Segueix l'estat de tots els teus projectes."
+      />
 
       {projects.length === 0 ? (
         <Card>
           <CardContent className="p-10 text-center space-y-4">
-            <div className="h-14 w-14 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
-              <FolderKanban className="h-6 w-6 text-primary" />
+            <div className="h-14 w-14 mx-auto rounded-full bg-accent/10 flex items-center justify-center border border-accent/20">
+              <FolderKanban className="h-6 w-6 text-accent" />
             </div>
-            <div>
-              <h3 className="text-lg font-semibold">Encara no tens projectes</h3>
-              <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
+            <div className="space-y-2">
+              <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-foreground/40">
+                Sense projectes
+              </p>
+              <h3 className="text-2xl font-light tracking-tight">
+                Encara no tens projectes
+              </h3>
+              <p className="text-sm text-foreground/50 max-w-md mx-auto">
                 Quan tinguem un projecte en marxa amb tu, apareixerà aquí amb
-                l&apos;estat, fites i documents associats. Per posar-lo en marxa,
-                contacta&apos;ns.
+                l&apos;estat, fites i documents associats.
               </p>
             </div>
             <div className="flex flex-wrap gap-3 justify-center pt-2">
@@ -66,7 +70,7 @@ export default async function ProjectesPage() {
                 rel="noopener noreferrer"
                 data-cta="whatsapp"
                 data-cta-location="dashboard_projects_empty"
-                className="inline-flex items-center gap-2 border border-border px-5 py-2.5 rounded-md text-sm font-medium hover:bg-muted transition-colors"
+                className="inline-flex items-center gap-2 border border-border px-5 py-2.5 rounded-md text-sm font-medium hover:bg-secondary/50 transition-colors"
               >
                 <MessageSquare className="h-4 w-4" />
                 WhatsApp
@@ -75,52 +79,52 @@ export default async function ProjectesPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {projects.map((project) => (
-            <Card key={project.id}>
+            <Card key={project.id} className="hover:border-accent/30 transition-colors">
               <CardContent className="p-6">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <FolderKanban className="h-5 w-5 text-primary" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start gap-3 mb-2">
+                      <div className="h-10 w-10 rounded-md border border-border bg-secondary/30 flex items-center justify-center shrink-0">
+                        <FolderKanban className="h-4 w-4 text-foreground/60" />
                       </div>
-                      <div>
-                        <h3 className="font-semibold">{project.name}</h3>
-                        <span className="text-xs text-muted-foreground">
+                      <div className="min-w-0">
+                        <h3 className="font-medium tracking-tight truncate">
+                          {project.name}
+                        </h3>
+                        <p className="text-[10px] font-mono uppercase tracking-wider text-foreground/40 mt-0.5">
                           {project.category}
-                        </span>
+                        </p>
                       </div>
                     </div>
                     {project.description && (
-                      <p className="text-sm text-muted-foreground mb-3">
+                      <p className="text-sm text-foreground/60 mb-3">
                         {project.description}
                       </p>
                     )}
                     {(project.startDate || project.endDate) && (
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3.5 w-3.5" />
-                          {project.startDate ? formatDate(project.startDate) : "—"}
-                          {" - "}
-                          {project.endDate ? formatDate(project.endDate) : "—"}
-                        </div>
+                      <div className="flex items-center gap-1 text-[11px] font-mono text-foreground/40">
+                        <Calendar className="h-3 w-3" />
+                        {project.startDate ? formatDate(project.startDate) : "—"}
+                        <span className="opacity-50">→</span>
+                        {project.endDate ? formatDate(project.endDate) : "—"}
                       </div>
                     )}
                   </div>
 
-                  <div className="flex flex-col items-end gap-3 min-w-[160px]">
+                  <div className="flex flex-col items-end gap-3 min-w-[200px]">
                     <Badge className={getStatusColor(project.status)} variant="outline">
                       {getStatusLabel(project.status)}
                     </Badge>
                     <div className="w-full">
-                      <div className="flex justify-between text-xs mb-1">
+                      <div className="flex justify-between text-[10px] font-mono uppercase tracking-wider text-foreground/40 mb-1">
                         <span>Progrés</span>
-                        <span>{project.progress}%</span>
+                        <span className="tabular-nums">{project.progress}%</span>
                       </div>
-                      <div className="h-2 rounded-full bg-muted w-full">
+                      <div className="h-1 rounded-full bg-foreground/10 w-full">
                         <div
-                          className="h-full rounded-full bg-primary transition-all"
+                          className="h-full rounded-full bg-accent transition-all"
                           style={{ width: `${project.progress}%` }}
                         />
                       </div>

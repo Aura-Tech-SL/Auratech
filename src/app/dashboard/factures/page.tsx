@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { getStatusColor, getStatusLabel, formatCurrency, formatDate } from "@/lib/utils";
 import { buildWhatsappLink } from "@/lib/whatsapp";
 
@@ -34,22 +35,26 @@ export default async function FacturesPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Factures</h1>
-        <p className="text-muted-foreground mt-1">
-          Historial de factures i pagaments
-        </p>
-      </div>
+      <AdminPageHeader
+        label="Espai client"
+        title="Factures"
+        description="Historial de factures i pagaments."
+      />
 
       {invoices.length === 0 ? (
         <Card>
           <CardContent className="p-10 text-center space-y-4">
-            <div className="h-14 w-14 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
-              <Receipt className="h-6 w-6 text-primary" />
+            <div className="h-14 w-14 mx-auto rounded-full bg-accent/10 flex items-center justify-center border border-accent/20">
+              <Receipt className="h-6 w-6 text-accent" />
             </div>
-            <div>
-              <h3 className="text-lg font-semibold">Encara no tens factures</h3>
-              <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
+            <div className="space-y-2">
+              <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-foreground/40">
+                Sense factures
+              </p>
+              <h3 className="text-2xl font-light tracking-tight">
+                Encara no tens factures
+              </h3>
+              <p className="text-sm text-foreground/50 max-w-md mx-auto">
                 Quan tinguem un projecte facturat amb tu, les factures
                 apareixeran aquí amb estat de pagament i descàrrega del PDF.
               </p>
@@ -70,7 +75,7 @@ export default async function FacturesPage() {
                 rel="noopener noreferrer"
                 data-cta="whatsapp"
                 data-cta-location="dashboard_invoices_empty"
-                className="inline-flex items-center gap-2 border border-border px-5 py-2.5 rounded-md text-sm font-medium hover:bg-muted transition-colors"
+                className="inline-flex items-center gap-2 border border-border px-5 py-2.5 rounded-md text-sm font-medium hover:bg-secondary/50 transition-colors"
               >
                 <MessageSquare className="h-4 w-4" />
                 WhatsApp
@@ -82,62 +87,72 @@ export default async function FacturesPage() {
         <>
           <div className="grid sm:grid-cols-3 gap-4">
             <Card>
-              <CardContent className="p-5">
-                <div className="text-sm text-muted-foreground">Total pendent</div>
-                <div className="text-2xl font-bold text-yellow-600 mt-1">
+              <CardContent className="p-6">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">
+                  Total pendent
+                </p>
+                <p className="text-2xl font-light tracking-tight tabular-nums mt-2 text-amber-500">
                   {formatCurrency(totalPending)}
-                </div>
+                </p>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-5">
-                <div className="text-sm text-muted-foreground">Total pagat</div>
-                <div className="text-2xl font-bold text-green-600 mt-1">
+              <CardContent className="p-6">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">
+                  Total pagat
+                </p>
+                <p className="text-2xl font-light tracking-tight tabular-nums mt-2 text-accent">
                   {formatCurrency(totalPaid)}
-                </div>
+                </p>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-5">
-                <div className="text-sm text-muted-foreground">Total factures</div>
-                <div className="text-2xl font-bold mt-1">{invoices.length}</div>
+              <CardContent className="p-6">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">
+                  Total factures
+                </p>
+                <p className="text-2xl font-light tracking-tight tabular-nums mt-2">
+                  {invoices.length}
+                </p>
               </CardContent>
             </Card>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Historial de factures</CardTitle>
+              <CardTitle className="text-sm font-mono uppercase tracking-wider text-foreground/60">
+                Historial de factures
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b text-left">
-                      <th className="pb-3 text-sm font-medium text-muted-foreground">
+                    <tr className="border-b border-border text-left">
+                      <th className="pb-3 text-[10px] font-mono uppercase tracking-wider text-foreground/40">
                         Factura
                       </th>
-                      <th className="pb-3 text-sm font-medium text-muted-foreground">
+                      <th className="pb-3 text-[10px] font-mono uppercase tracking-wider text-foreground/40">
                         Import
                       </th>
-                      <th className="pb-3 text-sm font-medium text-muted-foreground">
+                      <th className="pb-3 text-[10px] font-mono uppercase tracking-wider text-foreground/40">
                         Venciment
                       </th>
-                      <th className="pb-3 text-sm font-medium text-muted-foreground">
+                      <th className="pb-3 text-[10px] font-mono uppercase tracking-wider text-foreground/40">
                         Estat
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     {invoices.map((invoice) => (
-                      <tr key={invoice.id} className="border-b last:border-0">
-                        <td className="py-4 text-sm font-medium">
+                      <tr key={invoice.id} className="border-b border-border last:border-0">
+                        <td className="py-4 text-sm font-mono text-foreground/80">
                           {invoice.number}
                         </td>
-                        <td className="py-4 text-sm font-semibold">
+                        <td className="py-4 text-sm font-medium tabular-nums">
                           {formatCurrency(Number(invoice.total))}
                         </td>
-                        <td className="py-4 text-sm text-muted-foreground">
+                        <td className="py-4 text-[12px] font-mono text-foreground/50">
                           {invoice.dueDate ? formatDate(invoice.dueDate) : "—"}
                         </td>
                         <td className="py-4">

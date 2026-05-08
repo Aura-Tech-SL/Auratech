@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { cn } from "@/lib/utils";
 
 const messages = [
@@ -52,16 +53,17 @@ export default function MissatgesPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Missatges</h1>
-          <p className="text-muted-foreground mt-1">Comunicació amb l&apos;equip d&apos;Auratech</p>
-        </div>
-        <Button onClick={() => setShowCompose(!showCompose)}>
-          <MessageSquare className="mr-2 h-4 w-4" />
-          Nou missatge
-        </Button>
-      </div>
+      <AdminPageHeader
+        label="Espai client"
+        title="Missatges"
+        description="Comunicació amb l'equip d'Auratech."
+        action={
+          <Button variant="accent" onClick={() => setShowCompose(!showCompose)}>
+            <MessageSquare className="mr-2 h-4 w-4" />
+            Nou missatge
+          </Button>
+        }
+      />
 
       {/* Compose */}
       {showCompose && (
@@ -91,35 +93,35 @@ export default function MissatgesPage() {
             <Card
               key={message.id}
               className={cn(
-                "cursor-pointer transition-colors",
-                selectedMessage === message.id && "border-primary",
-                !message.read && "bg-primary/5"
+                "cursor-pointer transition-colors hover:border-accent/30",
+                selectedMessage === message.id && "border-accent",
+                !message.read && "bg-accent/[0.04]"
               )}
               onClick={() => setSelectedMessage(message.id)}
             >
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
-                  <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <User className="h-4 w-4 text-primary" />
+                  <div className="h-8 w-8 rounded-md border border-border bg-secondary/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <User className="h-3.5 w-3.5 text-foreground/60" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <span className={cn("text-sm", !message.read && "font-semibold")}>
+                      <span className={cn("text-sm", !message.read ? "font-medium" : "text-foreground/70")}>
                         {message.from}
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-[10px] font-mono text-foreground/40">
                         {new Date(message.date).toLocaleDateString("ca-ES", { day: "numeric", month: "short" })}
                       </span>
                     </div>
-                    <div className={cn("text-sm truncate", !message.read && "font-medium")}>
+                    <div className={cn("text-sm truncate", !message.read ? "font-medium" : "text-foreground/60")}>
                       {message.subject}
                     </div>
-                    <div className="text-xs text-muted-foreground truncate mt-0.5">
+                    <div className="text-xs text-foreground/40 truncate mt-0.5">
                       {message.content}
                     </div>
                   </div>
                   {!message.read && (
-                    <div className="h-2 w-2 rounded-full bg-primary flex-shrink-0 mt-2" />
+                    <div className="h-1.5 w-1.5 rounded-full bg-accent flex-shrink-0 mt-2" />
                   )}
                 </div>
               </CardContent>
@@ -133,26 +135,30 @@ export default function MissatgesPage() {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <User className="h-5 w-5 text-primary" />
+                  <div className="h-10 w-10 rounded-md border border-border bg-secondary/30 flex items-center justify-center">
+                    <User className="h-4 w-4 text-foreground/60" />
                   </div>
-                  <div>
-                    <CardTitle className="text-lg">{selected.subject}</CardTitle>
-                    <div className="text-sm text-muted-foreground">
-                      De: {selected.from} — {new Date(selected.date).toLocaleDateString("ca-ES", {
+                  <div className="min-w-0">
+                    <CardTitle className="text-lg font-light tracking-tight truncate">
+                      {selected.subject}
+                    </CardTitle>
+                    <p className="text-[11px] font-mono text-foreground/50 mt-0.5">
+                      De: {selected.from} · {new Date(selected.date).toLocaleDateString("ca-ES", {
                         day: "numeric",
                         month: "long",
                         year: "numeric",
                       })}
-                    </div>
+                    </p>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground whitespace-pre-line">{selected.content}</p>
-                <div className="mt-6 pt-6 border-t space-y-4">
+                <p className="text-sm text-foreground/70 whitespace-pre-line leading-relaxed">
+                  {selected.content}
+                </p>
+                <div className="mt-6 pt-6 border-t border-border space-y-3">
                   <Textarea placeholder="Respon a aquest missatge..." rows={3} />
-                  <Button>
+                  <Button variant="accent">
                     Respondre
                     <Send className="ml-2 h-4 w-4" />
                   </Button>
@@ -161,9 +167,11 @@ export default function MissatgesPage() {
             </Card>
           ) : (
             <Card>
-              <CardContent className="p-12 text-center text-muted-foreground">
-                <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-30" />
-                <p>Selecciona un missatge per veure&apos;l</p>
+              <CardContent className="p-12 text-center">
+                <MessageSquare className="h-10 w-10 mx-auto mb-4 text-foreground/20" />
+                <p className="text-sm text-foreground/40">
+                  Selecciona un missatge per veure&apos;l
+                </p>
               </CardContent>
             </Card>
           )}

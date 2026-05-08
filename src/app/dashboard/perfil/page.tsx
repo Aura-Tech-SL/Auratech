@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TwoFactorSection } from "@/components/dashboard/two-factor-section";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 
 interface ProfileData {
   name: string;
@@ -124,22 +125,27 @@ export default function PerfilPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">El meu perfil</h1>
-        <p className="text-muted-foreground mt-1">Gestiona la teva informació personal</p>
-      </div>
+      <AdminPageHeader
+        label="Espai client"
+        title="El meu perfil"
+        description="Gestiona la teva informació personal i la seguretat del compte."
+      />
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Avatar Card */}
         <Card>
           <CardContent className="p-6 text-center">
-            <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <UserCircle className="h-12 w-12 text-primary" />
+            <div className="h-20 w-20 rounded-md border border-accent/20 bg-accent/10 flex items-center justify-center mx-auto mb-4">
+              <UserCircle className="h-10 w-10 text-accent" />
             </div>
-            <h3 className="font-semibold text-lg">{profile.name || "—"}</h3>
-            <p className="text-sm text-muted-foreground">{profile.company || ""}</p>
+            <h3 className="text-lg font-light tracking-tight">
+              {profile.name || "—"}
+            </h3>
+            {profile.company && (
+              <p className="text-sm text-foreground/50 mt-1">{profile.company}</p>
+            )}
             {profile.role && (
-              <p className="font-mono text-xs uppercase tracking-wider text-accent mt-1">
+              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent mt-2">
                 {profile.role}
               </p>
             )}
@@ -149,7 +155,9 @@ export default function PerfilPage() {
         {/* Profile Form */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-lg">Informació personal</CardTitle>
+            <CardTitle className="text-sm font-mono uppercase tracking-wider text-foreground/60">
+              Informació personal
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
@@ -168,9 +176,9 @@ export default function PerfilPage() {
                   value={profile.email}
                   readOnly
                   disabled
-                  className="bg-muted/40"
+                  className="bg-secondary/30"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-foreground/40 mt-1">
                   No es pot modificar des d&apos;aquí.
                 </p>
               </div>
@@ -200,7 +208,7 @@ export default function PerfilPage() {
                 {profileState.saving ? "Desant..." : "Desar canvis"}
               </Button>
               {profileState.message && (
-                <span className="text-sm text-green-600">{profileState.message}</span>
+                <span className="text-sm text-accent">{profileState.message}</span>
               )}
               {profileState.error && (
                 <span className="text-sm text-destructive">{profileState.error}</span>
@@ -212,7 +220,9 @@ export default function PerfilPage() {
         {/* Security */}
         <Card className="lg:col-span-3">
           <CardHeader>
-            <CardTitle className="text-lg">Seguretat</CardTitle>
+            <CardTitle className="text-sm font-mono uppercase tracking-wider text-foreground/60">
+              Seguretat
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid sm:grid-cols-3 gap-4">
@@ -256,7 +266,7 @@ export default function PerfilPage() {
                 {pwdState.loading ? "Desant..." : "Canviar contrasenya"}
               </Button>
               {pwdState.message && (
-                <span className="text-sm text-green-600">{pwdState.message}</span>
+                <span className="text-sm text-accent">{pwdState.message}</span>
               )}
               {pwdState.error && (
                 <span className="text-sm text-destructive">{pwdState.error}</span>
@@ -342,12 +352,14 @@ function DataRightsSection() {
   return (
     <Card className="lg:col-span-3">
       <CardHeader>
-        <CardTitle className="text-lg">Les meves dades</CardTitle>
+        <CardTitle className="text-sm font-mono uppercase tracking-wider text-foreground/60">
+          Les meves dades
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div>
           <h4 className="font-medium mb-1">Exportar les meves dades</h4>
-          <p className="text-sm text-muted-foreground mb-3">
+          <p className="text-sm text-foreground/50 mb-3">
             Descarrega un JSON amb tota la teva informació desada al sistema
             (perfil, projectes, factures, missatges, contactes). Compatible amb
             l&apos;Article 20 del RGPD.
@@ -361,9 +373,9 @@ function DataRightsSection() {
           </Button>
         </div>
 
-        <div className="border-t pt-6">
+        <div className="border-t border-border pt-6">
           <h4 className="font-medium mb-1">Eliminar el meu compte</h4>
-          <p className="text-sm text-muted-foreground mb-3">
+          <p className="text-sm text-foreground/50 mb-3">
             Anonimitzem el teu compte: l&apos;email, nom i telèfon es
             substitueixen, i no podràs tornar a iniciar sessió. Conservem les
             factures i registres econòmics que la legislació espanyola exigeix
@@ -411,7 +423,7 @@ function DataRightsSection() {
         </div>
 
         {state.message && (
-          <p className="text-sm text-green-600">{state.message}</p>
+          <p className="text-sm text-accent">{state.message}</p>
         )}
         {state.error && (
           <p className="text-sm text-destructive">{state.error}</p>

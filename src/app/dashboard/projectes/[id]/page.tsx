@@ -40,15 +40,18 @@ export default async function ProjectDetailPage({
       </Link>
 
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
-        <div>
+        <div className="space-y-2">
+          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-foreground/40">
+            Projecte · {project.category}
+          </p>
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-3xl font-bold">{project.name}</h1>
+            <h1 className="text-4xl font-light tracking-tight">{project.name}</h1>
             <Badge className={getStatusColor(project.status)} variant="outline">
               {getStatusLabel(project.status)}
             </Badge>
           </div>
           {project.description && (
-            <p className="text-muted-foreground mt-2 max-w-2xl">
+            <p className="text-foreground/60 mt-2 max-w-2xl">
               {project.description}
             </p>
           )}
@@ -58,17 +61,21 @@ export default async function ProjectDetailPage({
       <div className="grid lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-lg">Estat del projecte</CardTitle>
+            <CardTitle className="text-sm font-mono uppercase tracking-wider text-foreground/60">
+              Estat del projecte
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-5">
             <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="font-medium">Progrés</span>
-                <span>{project.progress}%</span>
+              <div className="flex justify-between mb-2">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">
+                  Progrés
+                </span>
+                <span className="text-sm tabular-nums">{project.progress}%</span>
               </div>
-              <div className="h-3 rounded-full bg-muted">
+              <div className="h-1 rounded-full bg-foreground/10">
                 <div
-                  className="h-full rounded-full bg-primary transition-all"
+                  className="h-full rounded-full bg-accent transition-all"
                   style={{ width: `${project.progress}%` }}
                 />
               </div>
@@ -76,7 +83,9 @@ export default async function ProjectDetailPage({
 
             {project.technologies.length > 0 && (
               <div>
-                <h4 className="font-medium mb-2 text-sm">Tecnologies</h4>
+                <p className="text-[10px] font-mono uppercase tracking-wider text-foreground/40 mb-2">
+                  Tecnologies
+                </p>
                 <div className="flex flex-wrap gap-2">
                   {project.technologies.map((tech) => (
                     <Badge key={tech} variant="secondary">
@@ -91,20 +100,22 @@ export default async function ProjectDetailPage({
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Calendari</CardTitle>
+            <CardTitle className="text-sm font-mono uppercase tracking-wider text-foreground/60">
+              Calendari
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Inici:</span>
-              <span className="font-medium">
+              <Calendar className="h-3.5 w-3.5 text-foreground/40" />
+              <span className="text-foreground/50">Inici:</span>
+              <span className="font-mono text-foreground/80">
                 {project.startDate ? formatDate(project.startDate) : "Per determinar"}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Final:</span>
-              <span className="font-medium">
+              <Calendar className="h-3.5 w-3.5 text-foreground/40" />
+              <span className="text-foreground/50">Final:</span>
+              <span className="font-mono text-foreground/80">
                 {project.endDate ? formatDate(project.endDate) : "Per determinar"}
               </span>
             </div>
