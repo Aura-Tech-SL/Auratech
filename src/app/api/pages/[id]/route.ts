@@ -11,7 +11,7 @@ const updatePageSchema = z.object({
   metaDescription: z.string().nullable().optional(),
   ogImage: z.string().nullable().optional(),
   template: z.string().nullable().optional(),
-  status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
+  status: z.enum(["DRAFT", "SCHEDULED", "PUBLISHED", "ARCHIVED"]).optional(),
   locale: z.enum(["en", "ca", "es"]).optional(),
 });
 

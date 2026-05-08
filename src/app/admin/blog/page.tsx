@@ -97,6 +97,9 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     drafts: Array.from(groupsMap.values()).filter((g) =>
       g.variants.some((v) => v.status === "DRAFT"),
     ).length,
+    scheduled: Array.from(groupsMap.values()).filter((g) =>
+      g.variants.some((v) => v.status === "SCHEDULED"),
+    ).length,
     published: Array.from(groupsMap.values()).filter((g) =>
       g.variants.some((v) => v.status === "PUBLISHED"),
     ).length,
@@ -105,6 +108,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const statusFilters = [
     { label: "Tots", value: undefined, count: counts.total },
     { label: "Esborranys", value: "DRAFT", count: counts.drafts },
+    { label: "Programats", value: "SCHEDULED", count: counts.scheduled },
     { label: "Publicats", value: "PUBLISHED", count: counts.published },
   ];
 

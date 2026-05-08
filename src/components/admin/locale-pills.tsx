@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 const LOCALES = ["ca", "en", "es"] as const;
 type Locale = (typeof LOCALES)[number];
 
-type Status = "PUBLISHED" | "DRAFT" | "ARCHIVED";
+type Status = "PUBLISHED" | "SCHEDULED" | "DRAFT" | "ARCHIVED";
 
 export interface LocaleVariant {
   id: string;
@@ -25,6 +25,7 @@ interface LocalePillsProps {
 
 const STATUS_LABEL: Record<Status, string> = {
   PUBLISHED: "Publicat",
+  SCHEDULED: "Programat",
   DRAFT: "Esborrany",
   ARCHIVED: "Arxivat",
 };
@@ -35,6 +36,9 @@ function pillClasses(status: Status | undefined, missing: boolean) {
   }
   if (status === "PUBLISHED") {
     return "border-accent/40 bg-accent/10 text-accent hover:bg-accent/20";
+  }
+  if (status === "SCHEDULED") {
+    return "border-amber-500/40 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20";
   }
   if (status === "ARCHIVED") {
     return "border-foreground/20 bg-foreground/5 text-foreground/50 hover:bg-foreground/10";

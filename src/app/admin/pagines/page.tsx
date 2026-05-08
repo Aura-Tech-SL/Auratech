@@ -80,6 +80,9 @@ export default async function PaginesPage({ searchParams }: PaginesPageProps) {
     drafts: Array.from(groupsMap.values()).filter((g) =>
       g.variants.some((v) => v.status === "DRAFT"),
     ).length,
+    scheduled: Array.from(groupsMap.values()).filter((g) =>
+      g.variants.some((v) => v.status === "SCHEDULED"),
+    ).length,
     published: Array.from(groupsMap.values()).filter((g) =>
       g.variants.some((v) => v.status === "PUBLISHED"),
     ).length,
@@ -91,6 +94,7 @@ export default async function PaginesPage({ searchParams }: PaginesPageProps) {
   const filters = [
     { label: "Totes", value: undefined, count: counts.total },
     { label: "Esborranys", value: "DRAFT", count: counts.drafts },
+    { label: "Programades", value: "SCHEDULED", count: counts.scheduled },
     { label: "Publicades", value: "PUBLISHED", count: counts.published },
     { label: "Arxivades", value: "ARCHIVED", count: counts.archived },
   ];

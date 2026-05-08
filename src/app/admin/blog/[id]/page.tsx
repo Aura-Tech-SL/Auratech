@@ -12,6 +12,7 @@ import { useVariantState } from "@/components/admin/page-editor/use-variant-stat
 import { VariantColumn } from "@/components/admin/page-editor/variant-column";
 import { InspectorSidebar } from "@/components/admin/page-editor/inspector-sidebar";
 import { SEOPanel, type SeoFields } from "@/components/admin/page-editor/seo-panel";
+import { ScheduleControls } from "@/components/admin/page-editor/schedule-controls";
 
 interface PostData {
   id: string;
@@ -37,6 +38,7 @@ interface PostData {
   author: { id: string; name: string; email: string };
   updatedAt: string;
   publishedAt: string | null;
+  publishAt: string | null;
 }
 
 interface PostMeta {
@@ -355,6 +357,39 @@ export default function BlogPostEditorPage() {
     }
   }
 
+  async function handleSchedule(when: Date) {
+    if (!activeSidePost) return;
+    setError("");
+    await handleSave();
+    const res = await fetch(`/api/blog/${activeSidePost.id}/schedule`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ publishAt: when.toISOString() }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "Error programant");
+    }
+    setSuccess(`Publicació programada per al ${when.toLocaleString("ca-ES")}`);
+    setTimeout(() => setSuccess(""), 4000);
+    await loadPost();
+  }
+
+  async function handleCancelSchedule() {
+    if (!activeSidePost) return;
+    setError("");
+    const res = await fetch(`/api/blog/${activeSidePost.id}/schedule`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "Error cancel·lant");
+    }
+    setSuccess("Programació cancel·lada");
+    setTimeout(() => setSuccess(""), 3000);
+    await loadPost();
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
@@ -417,11 +452,17 @@ export default function BlogPostEditorPage() {
         </label>
         <Badge
           variant={
-            activeSidePost?.status === "PUBLISHED" ? "accent" : "outline"
+            activeSidePost?.status === "PUBLISHED"
+              ? "accent"
+              : activeSidePost?.status === "SCHEDULED"
+              ? "secondary"
+              : "outline"
           }
         >
           {activeSidePost?.status === "PUBLISHED"
             ? "Publicat"
+            : activeSidePost?.status === "SCHEDULED"
+            ? "Programat"
             : activeSidePost
             ? "Esborrany"
             : "Variant nova"}
@@ -530,6 +571,20 @@ export default function BlogPostEditorPage() {
           />
         </div>
       </div>
+
+      {activeSidePost &&
+        (activeSidePost.status === "DRAFT" ||
+          activeSidePost.status === "SCHEDULED") && (
+          <div className="border-t border-border pt-3">
+            <ScheduleControls
+              status={activeSidePost.status}
+              publishAt={activeSidePost.publishAt}
+              onSchedule={handleSchedule}
+              onCancel={handleCancelSchedule}
+              disabled={saving || publishing}
+            />
+          </div>
+        )}
 
       <div className="border-t border-border pt-3 space-y-1.5">
         <label className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">

@@ -32,6 +32,7 @@ export async function PUT(
         data: {
           status: "PUBLISHED",
           publishedAt: new Date(),
+          publishAt: null,
         },
       }),
       prisma.pageVersion.create({

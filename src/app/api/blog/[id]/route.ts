@@ -13,7 +13,7 @@ const updatePostSchema = z.object({
   ogImage: z.string().nullable().optional(),
   tags: z.array(z.string()).optional(),
   category: z.enum(["IOT", "CLOUD", "STRATEGY", "GENERAL"]).optional(),
-  status: z.enum(["DRAFT", "PUBLISHED"]).optional(),
+  status: z.enum(["DRAFT", "SCHEDULED", "PUBLISHED"]).optional(),
   readTime: z.number().int().nullable().optional(),
   publishedAt: z.string().datetime().nullable().optional(),
   locale: z.enum(["en", "ca", "es"]).optional(),

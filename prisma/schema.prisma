@@ -18,12 +18,14 @@ enum Role {
 
 enum PageStatus {
   DRAFT
+  SCHEDULED
   PUBLISHED
   ARCHIVED
 }
 
 enum PostStatus {
   DRAFT
+  SCHEDULED
   PUBLISHED
 }
 
@@ -99,11 +101,13 @@ model Page {
   author          User         @relation("PageAuthor", fields: [authorId], references: [id])
   authorId        String
   publishedAt     DateTime?
+  publishAt       DateTime?
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 
   @@unique([slug, locale])
   @@index([status])
+  @@index([publishAt])
 }
 
 model Block {
@@ -155,6 +159,7 @@ model BlogPost {
   author      User         @relation("BlogAuthor", fields: [authorId], references: [id])
   authorId    String
   publishedAt DateTime?
+  publishAt   DateTime?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
@@ -162,6 +167,7 @@ model BlogPost {
   @@index([status])
   @@index([category])
   @@index([translationKey])
+  @@index([publishAt])
 }
 
 model Service {

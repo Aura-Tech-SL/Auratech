@@ -19,6 +19,7 @@ import { VariantColumn } from "@/components/admin/page-editor/variant-column";
 import { InspectorSidebar } from "@/components/admin/page-editor/inspector-sidebar";
 import { VersionHistory } from "@/components/admin/page-editor/version-history";
 import { SEOPanel, type SeoFields } from "@/components/admin/page-editor/seo-panel";
+import { ScheduleControls } from "@/components/admin/page-editor/schedule-controls";
 
 interface PageData {
   id: string;
@@ -40,6 +41,7 @@ interface PageData {
   author: { id: string; name: string; email: string };
   updatedAt: string;
   publishedAt: string | null;
+  publishAt: string | null;
 }
 
 const emptySeo: SeoFields = { metaTitle: "", metaDescription: "", ogImage: "" };
@@ -285,6 +287,37 @@ export default function PageEditorPage() {
     }
   }
 
+  async function handleSchedule(when: Date) {
+    setError("");
+    await handleSave();
+    const res = await fetch(`/api/pages/${pageId}/schedule`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ publishAt: when.toISOString() }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "Error programant");
+    }
+    setSuccess(`Publicació programada per al ${when.toLocaleString("ca-ES")}`);
+    setTimeout(() => setSuccess(""), 4000);
+    await loadPage();
+  }
+
+  async function handleCancelSchedule() {
+    setError("");
+    const res = await fetch(`/api/pages/${pageId}/schedule`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "Error cancel·lant");
+    }
+    setSuccess("Programació cancel·lada");
+    setTimeout(() => setSuccess(""), 3000);
+    await loadPage();
+  }
+
   function copyPrimaryToCompare() {
     compare.setTitle(primary.title);
     compare.setBlocksRaw(
@@ -375,6 +408,8 @@ export default function PageEditorPage() {
           variant={
             page.status === "PUBLISHED"
               ? "accent"
+              : page.status === "SCHEDULED"
+              ? "secondary"
               : page.status === "DRAFT"
               ? "outline"
               : "secondary"
@@ -382,6 +417,8 @@ export default function PageEditorPage() {
         >
           {page.status === "PUBLISHED"
             ? "Publicat"
+            : page.status === "SCHEDULED"
+            ? "Programat"
             : page.status === "DRAFT"
             ? "Esborrany"
             : "Arxivat"}
@@ -436,6 +473,18 @@ export default function PageEditorPage() {
           <div className="text-sm text-foreground/70 font-mono">
             {new Date(page.publishedAt).toISOString().slice(0, 10)}
           </div>
+        </div>
+      )}
+
+      {(page.status === "DRAFT" || page.status === "SCHEDULED") && (
+        <div className="border-t border-border pt-4">
+          <ScheduleControls
+            status={page.status}
+            publishAt={page.publishAt}
+            onSchedule={handleSchedule}
+            onCancel={handleCancelSchedule}
+            disabled={saving || publishing}
+          />
         </div>
       )}
 
