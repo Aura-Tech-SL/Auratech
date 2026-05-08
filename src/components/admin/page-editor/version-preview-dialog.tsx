@@ -31,14 +31,15 @@ export interface VersionDetail {
 }
 
 interface VersionPreviewDialogProps {
-  pageId: string;
+  /** Base URL for the versions endpoint, e.g. "/api/pages/<id>/versions". */
+  apiBase: string;
   versionId: string;
   onClose: () => void;
   onRestore: (snapshot: VersionSnapshot) => void;
 }
 
 export function VersionPreviewDialog({
-  pageId,
+  apiBase,
   versionId,
   onClose,
   onRestore,
@@ -50,7 +51,7 @@ export function VersionPreviewDialog({
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    fetch(`/api/pages/${pageId}/versions/${versionId}`)
+    fetch(`${apiBase}/${versionId}`)
       .then((r) => r.json())
       .then(({ data, error: err }) => {
         if (cancelled) return;
@@ -69,7 +70,7 @@ export function VersionPreviewDialog({
     return () => {
       cancelled = true;
     };
-  }, [pageId, versionId]);
+  }, [apiBase, versionId]);
 
   function handleRestore() {
     if (!version) return;

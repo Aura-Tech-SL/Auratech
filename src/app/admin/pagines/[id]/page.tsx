@@ -490,7 +490,7 @@ export default function PageEditorPage() {
 
       <div className="border-t border-border pt-4">
         <VersionHistory
-          pageId={pageId}
+          apiBase={`/api/pages/${pageId}/versions`}
           refreshKey={versionsKey}
           onRestore={handleRestoreVersion}
         />

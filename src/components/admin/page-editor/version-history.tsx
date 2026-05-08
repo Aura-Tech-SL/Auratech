@@ -21,7 +21,8 @@ interface VersionSnapshot {
 }
 
 interface VersionHistoryProps {
-  pageId: string;
+  /** Base URL of the versions endpoint, e.g. "/api/pages/<id>/versions". */
+  apiBase: string;
   /**
    * Bumped by the parent after a publish so the list refetches and shows the
    * new version without a full page reload.
@@ -31,7 +32,7 @@ interface VersionHistoryProps {
 }
 
 export function VersionHistory({
-  pageId,
+  apiBase,
   refreshKey,
   onRestore,
 }: VersionHistoryProps) {
@@ -43,7 +44,7 @@ export function VersionHistory({
   const load = useCallback(() => {
     let cancelled = false;
     setLoading(true);
-    fetch(`/api/pages/${pageId}/versions`)
+    fetch(apiBase)
       .then((r) => r.json())
       .then(({ data, error: err }) => {
         if (cancelled) return;
@@ -59,7 +60,7 @@ export function VersionHistory({
     return () => {
       cancelled = true;
     };
-  }, [pageId]);
+  }, [apiBase]);
 
   useEffect(() => {
     return load();
@@ -125,7 +126,7 @@ export function VersionHistory({
 
       {openVersionId && (
         <VersionPreviewDialog
-          pageId={pageId}
+          apiBase={apiBase}
           versionId={openVersionId}
           onClose={() => setOpenVersionId(null)}
           onRestore={onRestore}

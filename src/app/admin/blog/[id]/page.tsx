@@ -13,6 +13,7 @@ import { VariantColumn } from "@/components/admin/page-editor/variant-column";
 import { InspectorSidebar } from "@/components/admin/page-editor/inspector-sidebar";
 import { SEOPanel, type SeoFields } from "@/components/admin/page-editor/seo-panel";
 import { ScheduleControls } from "@/components/admin/page-editor/schedule-controls";
+import { VersionHistory } from "@/components/admin/page-editor/version-history";
 
 interface PostData {
   id: string;
@@ -107,6 +108,7 @@ export default function BlogPostEditorPage() {
   const [compareLoading, setCompareLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [versionsKey, setVersionsKey] = useState(0);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -349,6 +351,7 @@ export default function BlogPostEditorPage() {
       }
       setSuccess("Article publicat!");
       setTimeout(() => setSuccess(""), 3000);
+      setVersionsKey((k) => k + 1);
       await loadPost();
     } catch (err: any) {
       setError(err.message || "Error publicant");
@@ -373,6 +376,41 @@ export default function BlogPostEditorPage() {
     setSuccess(`Publicació programada per al ${when.toLocaleString("ca-ES")}`);
     setTimeout(() => setSuccess(""), 4000);
     await loadPost();
+  }
+
+  function handleRestoreVersion(snapshot: {
+    title?: string;
+    excerpt?: string;
+    coverImage?: string | null;
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogImage?: string | null;
+    tags?: string[];
+    category?: string;
+    blocks?: Array<{ type: string; data?: Record<string, unknown>; isVisible?: boolean }>;
+  }) {
+    if (snapshot.title !== undefined) primary.setTitle(snapshot.title);
+    primary.setBlocksRaw(
+      (snapshot.blocks ?? []).map((b) => ({
+        type: b.type,
+        data: (b.data as Record<string, unknown>) ?? {},
+        isVisible: b.isVisible !== false,
+      })),
+    );
+    setPrimaryMeta({
+      excerpt: snapshot.excerpt ?? "",
+      coverImage: snapshot.coverImage ?? "",
+      category: snapshot.category ?? "GENERAL",
+      tags: (snapshot.tags ?? []).join(", "),
+    });
+    setPrimarySeo({
+      metaTitle: snapshot.metaTitle ?? "",
+      metaDescription: snapshot.metaDescription ?? "",
+      ogImage: snapshot.ogImage ?? "",
+    });
+    setActiveSide("left");
+    setSuccess("Versió restaurada al canvas. Prem Desar per aplicar-la.");
+    setTimeout(() => setSuccess(""), 5000);
   }
 
   async function handleCancelSchedule() {
@@ -585,6 +623,14 @@ export default function BlogPostEditorPage() {
             />
           </div>
         )}
+
+      <div className="border-t border-border pt-3">
+        <VersionHistory
+          apiBase={`/api/blog/${postId}/versions`}
+          refreshKey={versionsKey}
+          onRestore={handleRestoreVersion}
+        />
+      </div>
 
       <div className="border-t border-border pt-3 space-y-1.5">
         <label className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">

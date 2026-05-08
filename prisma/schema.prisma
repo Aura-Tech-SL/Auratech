@@ -79,7 +79,8 @@ model User {
   receivedMessages         Message[]      @relation("ReceivedMessages")
   blogPosts                BlogPost[]     @relation("BlogAuthor")
   pages                    Page[]         @relation("PageAuthor")
-  pageVersions             PageVersion[]  @relation("VersionCreator")
+  pageVersions             PageVersion[]     @relation("VersionCreator")
+  blogPostVersions         BlogPostVersion[] @relation("BlogVersionCreator")
   media                    Media[]        @relation("MediaUploader")
   createdAt                DateTime       @default(now())
   updatedAt                DateTime       @updatedAt
@@ -163,11 +164,24 @@ model BlogPost {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
+  versions    BlogPostVersion[]
+
   @@unique([slug, locale])
   @@index([status])
   @@index([category])
   @@index([translationKey])
   @@index([publishAt])
+}
+
+model BlogPostVersion {
+  id          String   @id @default(cuid())
+  blogPost    BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  blogPostId  String
+  version     Int
+  data        Json
+  createdBy   User     @relation("BlogVersionCreator", fields: [createdById], references: [id])
+  createdById String
+  createdAt   DateTime @default(now())
 }
 
 model Service {
