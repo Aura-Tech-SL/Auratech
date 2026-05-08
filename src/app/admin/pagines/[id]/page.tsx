@@ -17,6 +17,8 @@ import Link from "next/link";
 import { useVariantState } from "@/components/admin/page-editor/use-variant-state";
 import { VariantColumn } from "@/components/admin/page-editor/variant-column";
 import { InspectorSidebar } from "@/components/admin/page-editor/inspector-sidebar";
+import { VersionHistory } from "@/components/admin/page-editor/version-history";
+import { SEOPanel, type SeoFields } from "@/components/admin/page-editor/seo-panel";
 
 interface PageData {
   id: string;
@@ -24,6 +26,9 @@ interface PageData {
   slug: string;
   locale: string;
   description: string | null;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  ogImage: string | null;
   status: string;
   blocks: Array<{
     id: string;
@@ -35,6 +40,16 @@ interface PageData {
   author: { id: string; name: string; email: string };
   updatedAt: string;
   publishedAt: string | null;
+}
+
+const emptySeo: SeoFields = { metaTitle: "", metaDescription: "", ogImage: "" };
+
+function seoFromPage(p: PageData): SeoFields {
+  return {
+    metaTitle: p.metaTitle ?? "",
+    metaDescription: p.metaDescription ?? "",
+    ogImage: p.ogImage ?? "",
+  };
 }
 
 const ALL_LOCALES = ["ca", "en", "es"] as const;
@@ -62,6 +77,9 @@ export default function PageEditorPage() {
   const [publishing, setPublishing] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [versionsKey, setVersionsKey] = useState(0);
+  const [primarySeo, setPrimarySeo] = useState<SeoFields>(emptySeo);
+  const [compareSeo, setCompareSeo] = useState<SeoFields>(emptySeo);
 
   const loadPage = useCallback(async () => {
     try {
@@ -70,6 +88,7 @@ export default function PageEditorPage() {
       const { data } = await res.json();
       setPage(data);
       primary.loadFromApi(data);
+      setPrimarySeo(seoFromPage(data));
     } catch (err: any) {
       setError(err.message || "Error carregant");
     } finally {
@@ -87,6 +106,7 @@ export default function PageEditorPage() {
     if (!compareLocale || !page) {
       setComparePost(null);
       compare.clear();
+      setCompareSeo(emptySeo);
       return;
     }
     let cancelled = false;
@@ -106,6 +126,7 @@ export default function PageEditorPage() {
               if (cancelled) return;
               setComparePost(full);
               compare.loadFromApi(full);
+              setCompareSeo(seoFromPage(full));
             });
         } else {
           // No sibling exists — set up an "empty" placeholder so the user
@@ -113,6 +134,7 @@ export default function PageEditorPage() {
           setComparePost(null);
           compare.clear();
           compare.setTitle(page.title); // hint
+          setCompareSeo(emptySeo);
         }
       })
       .finally(() => {
@@ -134,7 +156,12 @@ export default function PageEditorPage() {
       await fetch(`/api/pages/${pageId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: primary.title }),
+        body: JSON.stringify({
+          title: primary.title,
+          metaTitle: primarySeo.metaTitle || null,
+          metaDescription: primarySeo.metaDescription || null,
+          ogImage: primarySeo.ogImage || null,
+        }),
       });
       const res = await fetch(`/api/pages/${pageId}/blocks`, {
         method: "PUT",
@@ -165,6 +192,9 @@ export default function PageEditorPage() {
               title: compare.title || page.title,
               slug: page.slug,
               locale: compareLocale,
+              metaTitle: compareSeo.metaTitle || undefined,
+              metaDescription: compareSeo.metaDescription || undefined,
+              ogImage: compareSeo.ogImage || null,
             }),
           });
           if (!createRes.ok) {
@@ -178,7 +208,12 @@ export default function PageEditorPage() {
           await fetch(`/api/pages/${compareId}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title: compare.title }),
+            body: JSON.stringify({
+              title: compare.title,
+              metaTitle: compareSeo.metaTitle || null,
+              metaDescription: compareSeo.metaDescription || null,
+              ogImage: compareSeo.ogImage || null,
+            }),
           });
         }
 
@@ -241,6 +276,7 @@ export default function PageEditorPage() {
       }
       setSuccess("Pàgina publicada!");
       setTimeout(() => setSuccess(""), 3000);
+      setVersionsKey((k) => k + 1);
       await loadPage();
     } catch (err: any) {
       setError(err.message || "Error publicant");
@@ -258,6 +294,23 @@ export default function PageEditorPage() {
         isVisible: b.isVisible,
       })),
     );
+  }
+
+  function handleRestoreVersion(snapshot: {
+    title?: string;
+    blocks?: Array<{ type: string; data?: Record<string, unknown>; isVisible?: boolean }>;
+  }) {
+    if (snapshot.title !== undefined) primary.setTitle(snapshot.title);
+    primary.setBlocksRaw(
+      (snapshot.blocks ?? []).map((b) => ({
+        type: b.type,
+        data: (b.data as Record<string, unknown>) ?? {},
+        isVisible: b.isVisible !== false,
+      })),
+    );
+    setActiveSide("left");
+    setSuccess("Versió restaurada al canvas. Prem Desar per aplicar-la.");
+    setTimeout(() => setSuccess(""), 5000);
   }
 
   if (loading) {
@@ -292,6 +345,25 @@ export default function PageEditorPage() {
       compare.updateBlockData(compare.selectedBlock._clientId, data);
     }
   };
+
+  // SEO panel reflects the active side too — same pattern as the meta panels.
+  const activeSeo = activeSide === "left" ? primarySeo : compareSeo;
+  const setActiveSeo = activeSide === "left" ? setPrimarySeo : setCompareSeo;
+  const activeSideTitle = activeSide === "left" ? primary.title : compare.title;
+  const activeSideLocale =
+    activeSide === "left" ? page.locale : compareLocale ?? page.locale;
+  const activeSideSlug =
+    activeSide === "left"
+      ? page.slug
+      : comparePost?.slug ?? page.slug;
+  const seoTab = (
+    <SEOPanel
+      value={activeSeo}
+      onChange={setActiveSeo}
+      pathHint={`/${activeSideLocale}/${activeSideSlug}`}
+      fallbackTitle={activeSideTitle || page.title}
+    />
+  );
 
   const documentTab = (
     <div className="space-y-4">
@@ -366,6 +438,14 @@ export default function PageEditorPage() {
           </div>
         </div>
       )}
+
+      <div className="border-t border-border pt-4">
+        <VersionHistory
+          pageId={pageId}
+          refreshKey={versionsKey}
+          onRestore={handleRestoreVersion}
+        />
+      </div>
     </div>
   );
 
@@ -541,6 +621,7 @@ export default function PageEditorPage() {
         <div className="hidden lg:block">
           <InspectorSidebar
             documentTab={documentTab}
+            seoTab={seoTab}
             selectedBlock={
               inspectorBlock
                 ? {

@@ -10,6 +10,7 @@ const createPageSchema = z.object({
   description: z.string().optional(),
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
+  ogImage: z.string().nullable().optional(),
   locale: z.enum(["en", "ca", "es"]).default("ca"),
 });
 
@@ -73,6 +74,7 @@ export async function POST(request: NextRequest) {
         description: data.description,
         metaTitle: data.metaTitle,
         metaDescription: data.metaDescription,
+        ogImage: data.ogImage ?? null,
         locale: data.locale,
         authorId: session!.user.id,
       },

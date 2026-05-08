@@ -25,15 +25,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     where: { slug: params.slug, status: "PUBLISHED" },
   });
   if (!post) return {};
+
+  const title = post.metaTitle || `${post.title} — Auratech Blog`;
+  const description = post.metaDescription || post.excerpt;
+  const ogImg = post.ogImage || post.coverImage || undefined;
+
   return {
-    title: `${post.title} — Auratech Blog`,
-    description: post.excerpt,
+    title,
+    description,
     alternates: buildLocaleAlternates(`/blog/${post.slug}`, params.locale),
     openGraph: {
-      title: post.title,
-      description: post.excerpt || undefined,
+      title: post.metaTitle || post.title,
+      description: description || undefined,
       type: "article",
-      images: post.coverImage ? [post.coverImage] : undefined,
+      images: ogImg ? [ogImg] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.metaTitle || post.title,
+      description: description || undefined,
+      images: ogImg ? [ogImg] : undefined,
     },
   };
 }

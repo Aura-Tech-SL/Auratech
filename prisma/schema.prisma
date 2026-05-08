@@ -144,6 +144,9 @@ model BlogPost {
   translationKey String?
   excerpt     String
   coverImage  String?
+  metaTitle       String?
+  metaDescription String?
+  ogImage         String?
   tags        String[]     @default([])
   category    BlogCategory @default(GENERAL)
   status      PostStatus   @default(DRAFT)

@@ -1,15 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { FileText, Settings2 } from "lucide-react";
+import { FileText, Search, Settings2 } from "lucide-react";
 import { BlockEditorForm } from "@/components/admin/block-editor-form";
 import { cn } from "@/lib/utils";
+
+type Tab = "page" | "block" | "seo";
 
 interface InspectorSidebarProps {
   /** Document-level settings — rendered in the document tab. */
   documentTab: React.ReactNode;
   /** Label for the document tab (default "Pàgina"). */
   documentTabLabel?: string;
+  /** Optional SEO tab content. When provided, renders a third tab. */
+  seoTab?: React.ReactNode;
   /** Block-specific config — rendered in the "Bloc" tab. */
   selectedBlock: {
     type: string;
@@ -41,19 +45,18 @@ const BLOCK_LABELS: Record<string, string> = {
 export function InspectorSidebar({
   documentTab,
   documentTabLabel = "Pàgina",
+  seoTab,
   selectedBlock,
 }: InspectorSidebarProps) {
-  const [active, setActive] = useState<"page" | "block">(
-    selectedBlock ? "block" : "page",
-  );
+  const [active, setActive] = useState<Tab>(selectedBlock ? "block" : "page");
 
-  // Auto-switch to block tab when something is selected.
-  const effectiveActive: "page" | "block" =
-    selectedBlock && active === "block" ? "block" : !selectedBlock ? "page" : active;
+  // Block tab is unreachable when nothing is selected → fall back to page.
+  // Otherwise we honour whatever tab the user picked.
+  const effectiveActive: Tab =
+    active === "block" && !selectedBlock ? "page" : active;
 
   return (
     <aside className="sticky top-4 flex h-[calc(100vh-2rem)] w-full flex-col rounded-lg border border-border bg-card overflow-hidden">
-      {/* Tab bar */}
       <div className="flex border-b border-border">
         <TabBtn
           active={effectiveActive === "page"}
@@ -68,23 +71,31 @@ export function InspectorSidebar({
           icon={<Settings2 className="h-3.5 w-3.5" />}
           label={selectedBlock ? BLOCK_LABELS[selectedBlock.type] ?? selectedBlock.type : "Bloc"}
         />
+        {seoTab && (
+          <TabBtn
+            active={effectiveActive === "seo"}
+            onClick={() => setActive("seo")}
+            icon={<Search className="h-3.5 w-3.5" />}
+            label="SEO"
+          />
+        )}
       </div>
 
-      {/* Tab body */}
       <div className="flex-1 overflow-y-auto px-4 py-4">
-        {effectiveActive === "page" ? (
-          documentTab
-        ) : selectedBlock ? (
-          <BlockEditorForm
-            type={selectedBlock.type}
-            data={selectedBlock.data}
-            onChange={selectedBlock.onChange}
-          />
-        ) : (
-          <p className="py-8 text-center text-xs text-foreground/40">
-            Selecciona un bloc al canvas per editar-ne la configuració
-          </p>
-        )}
+        {effectiveActive === "page" && documentTab}
+        {effectiveActive === "seo" && seoTab}
+        {effectiveActive === "block" &&
+          (selectedBlock ? (
+            <BlockEditorForm
+              type={selectedBlock.type}
+              data={selectedBlock.data}
+              onChange={selectedBlock.onChange}
+            />
+          ) : (
+            <p className="py-8 text-center text-xs text-foreground/40">
+              Selecciona un bloc al canvas per editar-ne la configuració
+            </p>
+          ))}
       </div>
     </aside>
   );

@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useVariantState } from "@/components/admin/page-editor/use-variant-state";
 import { VariantColumn } from "@/components/admin/page-editor/variant-column";
 import { InspectorSidebar } from "@/components/admin/page-editor/inspector-sidebar";
+import { SEOPanel, type SeoFields } from "@/components/admin/page-editor/seo-panel";
 
 interface PostData {
   id: string;
@@ -19,6 +20,9 @@ interface PostData {
   locale: string;
   excerpt: string;
   coverImage: string | null;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  ogImage: string | null;
   category: string;
   tags: string[];
   status: string;
@@ -71,6 +75,16 @@ function metaFromPost(p: PostData): PostMeta {
   };
 }
 
+const emptySeo: SeoFields = { metaTitle: "", metaDescription: "", ogImage: "" };
+
+function seoFromPost(p: PostData): SeoFields {
+  return {
+    metaTitle: p.metaTitle ?? "",
+    metaDescription: p.metaDescription ?? "",
+    ogImage: p.ogImage ?? "",
+  };
+}
+
 export default function BlogPostEditorPage() {
   const params = useParams();
   const postId = params.id as string;
@@ -82,6 +96,8 @@ export default function BlogPostEditorPage() {
   const [comparePost, setComparePost] = useState<PostData | null>(null);
   const [primaryMeta, setPrimaryMeta] = useState<PostMeta>(emptyMeta);
   const [compareMeta, setCompareMeta] = useState<PostMeta>(emptyMeta);
+  const [primarySeo, setPrimarySeo] = useState<SeoFields>(emptySeo);
+  const [compareSeo, setCompareSeo] = useState<SeoFields>(emptySeo);
   const [compareLocale, setCompareLocale] = useState<string | null>(null);
   const [activeSide, setActiveSide] = useState<"left" | "right">("left");
 
@@ -99,6 +115,7 @@ export default function BlogPostEditorPage() {
       const { data } = await res.json();
       setPost(data);
       setPrimaryMeta(metaFromPost(data));
+      setPrimarySeo(seoFromPost(data));
       primary.loadFromApi(data);
     } catch (err: any) {
       setError(err.message || "Error carregant");
@@ -116,6 +133,7 @@ export default function BlogPostEditorPage() {
     if (!compareLocale || !post) {
       setComparePost(null);
       setCompareMeta(emptyMeta);
+      setCompareSeo(emptySeo);
       compare.clear();
       return;
     }
@@ -124,6 +142,7 @@ export default function BlogPostEditorPage() {
       // Treat compare as a brand-new variant. The user can copy from primary.
       setComparePost(null);
       setCompareMeta(emptyMeta);
+      setCompareSeo(emptySeo);
       compare.clear();
       compare.setTitle(post.title);
       return;
@@ -146,11 +165,13 @@ export default function BlogPostEditorPage() {
               if (cancelled) return;
               setComparePost(full);
               setCompareMeta(metaFromPost(full));
+              setCompareSeo(seoFromPost(full));
               compare.loadFromApi(full);
             });
         } else {
           setComparePost(null);
           setCompareMeta(emptyMeta);
+          setCompareSeo(emptySeo);
           compare.clear();
           compare.setTitle(post.title);
         }
@@ -183,6 +204,7 @@ export default function BlogPostEditorPage() {
     id?: string;
     title: string;
     meta: PostMeta;
+    seo: SeoFields;
     blocks: typeof primary.blocks;
     locale: string;
     translationKey?: string | null;
@@ -203,6 +225,9 @@ export default function BlogPostEditorPage() {
           title: opts.title,
           excerpt: opts.meta.excerpt || "(buit)",
           coverImage: opts.meta.coverImage || null,
+          metaTitle: opts.seo.metaTitle || null,
+          metaDescription: opts.seo.metaDescription || null,
+          ogImage: opts.seo.ogImage || null,
           category: opts.meta.category,
           tags: tagsArray,
           locale: opts.locale,
@@ -223,6 +248,9 @@ export default function BlogPostEditorPage() {
           title: opts.title,
           excerpt: opts.meta.excerpt,
           coverImage: opts.meta.coverImage || null,
+          metaTitle: opts.seo.metaTitle || null,
+          metaDescription: opts.seo.metaDescription || null,
+          ogImage: opts.seo.ogImage || null,
           category: opts.meta.category,
           tags: tagsArray,
         }),
@@ -265,6 +293,7 @@ export default function BlogPostEditorPage() {
         id: post.id,
         title: primary.title,
         meta: primaryMeta,
+        seo: primarySeo,
         blocks: primary.blocks,
         locale: post.locale,
         translationKey: post.translationKey,
@@ -275,6 +304,7 @@ export default function BlogPostEditorPage() {
           id: comparePost?.id,
           title: compare.title || primary.title,
           meta: compareMeta,
+          seo: compareSeo,
           blocks: compare.blocks,
           locale: compareLocale,
           translationKey: post.translationKey,
@@ -360,8 +390,11 @@ export default function BlogPostEditorPage() {
   // way you can edit the EN excerpt without leaving the EN canvas.
   const activeMeta = activeSide === "left" ? primaryMeta : compareMeta;
   const setActiveMeta = activeSide === "left" ? setPrimaryMeta : setCompareMeta;
+  const activeSeo = activeSide === "left" ? primarySeo : compareSeo;
+  const setActiveSeo = activeSide === "left" ? setPrimarySeo : setCompareSeo;
   const activeSideLocale = activeSide === "left" ? post.locale : compareLocale;
   const activeSidePost = activeSide === "left" ? post : comparePost;
+  const activeSideTitle = activeSide === "left" ? primary.title : compare.title;
 
   const articleTab = (
     <div className="space-y-4">
@@ -505,6 +538,18 @@ export default function BlogPostEditorPage() {
         <div className="text-sm text-foreground/70">{post.author.name}</div>
       </div>
     </div>
+  );
+
+  const seoTab = (
+    <SEOPanel
+      value={activeSeo}
+      onChange={setActiveSeo}
+      pathHint={`/${activeSideLocale ?? post.locale}/blog/${
+        activeSidePost?.slug ?? post.slug
+      }`}
+      fallbackTitle={activeSideTitle || post.title}
+      fallbackDescription={activeMeta.excerpt || undefined}
+    />
   );
 
   return (
@@ -678,6 +723,7 @@ export default function BlogPostEditorPage() {
           <InspectorSidebar
             documentTab={articleTab}
             documentTabLabel="Article"
+            seoTab={seoTab}
             selectedBlock={
               inspectorBlock
                 ? {
