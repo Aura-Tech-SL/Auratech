@@ -19,6 +19,7 @@ import {
   Wrench,
   ShieldCheck,
   ScrollText,
+  CalendarClock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -43,6 +44,7 @@ const adminNav: NavItem[] = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "Pàgines", href: "/admin/pagines", icon: FileText },
   { name: "Blog", href: "/admin/blog", icon: PenSquare },
+  { name: "Programació", href: "/admin/scheduled", icon: CalendarClock },
   { name: "Serveis", href: "/admin/serveis", icon: Wrench },
   { name: "Projectes", href: "/admin/projectes", icon: FolderKanban },
   { name: "Media", href: "/admin/media", icon: Image },
