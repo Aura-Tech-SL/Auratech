@@ -19,20 +19,24 @@ const nextConfig = {
     const scriptSrc = isDev
       ? "'self' 'unsafe-inline' 'unsafe-eval'"
       : "'self' 'unsafe-inline'";
-    const csp = [
+    // Safari respects upgrade-insecure-requests strictly — including for
+    // localhost — so leaving it on in dev breaks any http-served asset
+    // (videos, fonts, etc.). Only emit it in production.
+    const cspParts = [
       "default-src 'self'",
       `script-src ${scriptSrc}`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: blob: https:",
-      "media-src 'self' https:",
+      "media-src 'self' blob:",
       "connect-src 'self' https:",
       "frame-ancestors 'none'",
       "form-action 'self'",
       "base-uri 'self'",
       "object-src 'none'",
-      "upgrade-insecure-requests",
-    ].join("; ");
+    ];
+    if (!isDev) cspParts.push("upgrade-insecure-requests");
+    const csp = cspParts.join("; ");
 
     return [
       {

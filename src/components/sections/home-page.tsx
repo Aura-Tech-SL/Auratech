@@ -7,7 +7,7 @@ import { ArrowRight, ArrowUpRight, Lightbulb, Cloud, Code2, Cpu, Bot, BarChart3,
 import { SectionLabel } from "@/components/ui/section-label";
 import { GridBackground } from "@/components/ui/grid-background";
 import { GlowOrb } from "@/components/ui/glow-orb";
-import { AnimatedMeshBg } from "@/components/ui/animated-mesh-bg";
+import { HeroVideo } from "@/components/ui/hero-video";
 import { useTranslations } from "next-intl";
 import { HomeAiSpotlight } from "@/components/sections/home-ai-spotlight";
 
@@ -75,41 +75,21 @@ export function HomePage() {
     <>
       {/* HERO */}
       <section ref={heroRef} className="relative min-h-screen flex items-center overflow-hidden">
-        <AnimatedMeshBg />
-        <div className="absolute inset-0 bg-background/40" />
-        <GridBackground />
-        <GlowOrb className="w-[1000px] h-[1000px] -top-60 -right-60 opacity-30" />
-        <GlowOrb className="w-[600px] h-[600px] bottom-[-20%] left-[-10%] opacity-15" />
+        {/* Video background — replaces the previous mesh + scan line + particle layers */}
+        <HeroVideo src="/videos/hero-loop.mp4" poster="/videos/hero-loop-poster.jpg" />
 
-        {/* Scan line */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <motion.div
-            className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-accent/60 to-transparent"
-            animate={{ top: ["-5%", "105%"] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-          />
-          {/* Floating particles */}
-          {Array.from({ length: 20 }).map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 rounded-full bg-accent/40"
-              style={{ left: `${5 + (i * 4.7) % 90}%`, top: `${10 + (i * 7.3) % 80}%` }}
-              animate={{
-                y: [0, -30, 0],
-                opacity: [0, 0.8, 0],
-                scale: [0.5, 1.5, 0.5],
-              }}
-              transition={{ duration: 3 + (i % 3), repeat: Infinity, ease: "easeInOut", delay: i * 0.3 }}
-            />
-          ))}
-        </div>
+        {/* Layered overlays: keep brand tint + readability while letting motion bleed through */}
+        <div className="absolute inset-0 bg-background/55" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/40 to-background" />
+        <GridBackground className="opacity-[0.08]" />
+        <GlowOrb className="w-[700px] h-[700px] -top-40 -right-40 opacity-20 mix-blend-screen" />
 
-        {/* Accent line bottom */}
+        {/* Bottom accent line — single subtle pulse, no scan line */}
         <motion.div
-          className="absolute left-0 right-0 bottom-0 h-[2px]"
-          style={{ background: "linear-gradient(90deg, transparent, hsl(var(--accent) / 0.8), transparent)" }}
-          animate={{ opacity: [0.3, 1, 0.3] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute left-0 right-0 bottom-0 h-[1px]"
+          style={{ background: "linear-gradient(90deg, transparent, hsl(var(--accent) / 0.6), transparent)" }}
+          animate={{ opacity: [0.4, 1, 0.4] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         />
 
         <motion.div style={{ opacity: heroOpacity, scale: heroScale }} className="mx-auto max-w-7xl px-6 lg:px-8 w-full relative py-20 sm:py-28 flex flex-col items-center text-center">
