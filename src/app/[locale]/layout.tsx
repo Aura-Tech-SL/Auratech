@@ -14,6 +14,11 @@ export async function generateMetadata({
 }: {
   params: { locale: string };
 }) {
+  // Bots routinely probe paths like /license.txt, /author-sitemap.xml,
+  // /wp-login.php which Next routes here as [locale]=<the-path>. Without
+  // this guard the dynamic import below would throw MODULE_NOT_FOUND
+  // for messages/<probe-path>.json on every probe, polluting Sentry.
+  if (!locales.includes(locale as Locale)) notFound();
   const messages = (await import(`../../../messages/${locale}.json`)).default;
   const meta = messages.meta;
 
