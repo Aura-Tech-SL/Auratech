@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -121,11 +122,14 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
         </div>
 
         {post.coverImage && (
-          <div className="aspect-[2/1] rounded-lg overflow-hidden bg-secondary mb-12">
-            <img
+          <div className="relative aspect-[2/1] rounded-lg overflow-hidden bg-secondary mb-12">
+            <Image
               src={post.coverImage}
               alt={post.title}
-              className="object-cover w-full h-full"
+              fill
+              sizes="(max-width: 768px) 100vw, 768px"
+              priority
+              className="object-cover"
             />
           </div>
         )}
