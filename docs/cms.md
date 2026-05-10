@@ -15,7 +15,7 @@ architecture see [architecture.md](architecture.md) and
 ## Roles
 
 | Role | Can do |
-|---|---|
+| --- | --- |
 | `SUPERADMIN` | Everything, including user role changes |
 | `ADMIN` | Manage all content + contact submissions + clients |
 | `EDITOR` | Create/edit content (blog, pages, services, projects) |

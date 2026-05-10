@@ -43,8 +43,10 @@ using App Router route groups + segment-level layouts to isolate them:
 ### 1. Public marketing site — `src/app/[locale]/(public)/`
 
 - All routes carry a locale prefix. `next-intl` middleware enforces it.
-- Pages render with `force-dynamic` so the CMS catch-all
-  (`[locale]/[slug]/page.tsx`) can serve content authored in `/admin/pagines`.
+- Pages that read DB content set `export const dynamic = "force-dynamic"`
+  explicitly: `projectes/page.tsx`, `serveis/page.tsx`, `blog/page.tsx`,
+  `blog/[slug]/page.tsx`, `[slug]/page.tsx`. The dynamic `[slug]/page.tsx`
+  is what serves CMS-authored pages from `/admin/pagines`.
 - Server-rendered, fetches via Prisma; client interactivity reserved for
   forms, animations, and language switcher.
 
@@ -90,21 +92,25 @@ GDPR endpoints: `/api/profile/delete` (anonymizes), `/api/profile/export`
 
 See `prisma/schema.prisma` for the full schema. Core relationships:
 
-```
-User ─── owns ──▶ Project, Invoice, BlogPost, Page, Media
-     ─── sends ──▶ Message
-     └── 2FA fields, audit logs
+```text
+User ─── (1:N) ──▶ Invoice, BlogPost (author), Page (author),
+                   Media (uploadedBy), Project (user — nullable),
+                   PageVersion (createdBy), BlogPostVersion (createdBy)
+     ─── (M:N via Message) ──▶ User    (sender / receiver)
+     └── 2FA fields, audit-log mentions (no FK)
 
-Page ──┬── has many ──▶ Block (parent: pageId)
-       └── has many ──▶ PageVersion (snapshot history)
+Page ──┬── has many ──▶ Block (FK pageId, nullable)
+       └── has many ──▶ PageVersion (append-only snapshots)
 
-BlogPost ──┬── has many ──▶ Block (parent: blogPostId)
-           ├── has many ──▶ BlogPostVersion
+BlogPost ──┬── has many ──▶ Block (FK blogPostId, nullable)
+           ├── has many ──▶ BlogPostVersion (append-only)
            └── grouped by translationKey across locales
 
-Service, Project ── locale-scoped, no blocks
-ContactSubmission ── public form intake, queueable for review
-AuditLog, RateLimit ── ops tables
+Service ── locale-scoped, no blocks
+Project ── locale-scoped, optional User owner, no blocks
+ContactSubmission ── public form intake
+AuditLog, RateLimit ── ops tables (AuditLog.actorId is NOT a FK so
+                                   anonymised users keep their trail)
 ```
 
 Locale handling differs slightly:
@@ -245,7 +251,7 @@ There is **no** unit-test suite — this codebase does not use Jest/Vitest.
 ## Key non-obvious decisions
 
 - **Postgres rate-limit, no Redis** — added complexity not justified at
-  current scale. See `openspec/changes/2026-05-06-security-week-1/design.md §1`.
+  current scale. See `openspec/changes/archive/2026-05-06-security-week-1/design.md §1`.
 - **Credentials-only auth, no OAuth** — small known user set, simpler
   for the admin/client model.
 - **Mandatory 2FA for admins** — chose hard gate over soft prompt

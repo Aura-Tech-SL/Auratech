@@ -2,7 +2,7 @@
  * Authorisation helpers for ownership-based checks (IDOR prevention).
  *
  * Used by API routes that expose resources tied to specific users.
- * See openspec/changes/2026-05-06-security-week-1/specs/api/spec.md
+ * See openspec/changes/archive/2026-05-06-security-week-1/specs/api/spec.md
  * "Resource ownership enforcement" requirement.
  */
 

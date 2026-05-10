@@ -12,7 +12,7 @@ const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 
 // Allowlist of MIME types we accept. SVG is intentionally excluded — its XML
 // payload can carry executable scripts that run when the browser renders the
-// file inline. See openspec/changes/2026-05-06-security-week-1/design.md §4.
+// file inline. See openspec/changes/archive/2026-05-06-security-week-1/design.md §4.
 const ALLOWED_MIMES = new Set<string>([
   "image/jpeg",
   "image/png",

@@ -1,7 +1,7 @@
 /**
  * Generic rate limiter backed by Postgres (model `RateLimit`).
  *
- * Trade-offs vs Redis: see openspec/changes/2026-05-06-security-week-1/design.md §1.
+ * Trade-offs vs Redis: see openspec/changes/archive/2026-05-06-security-week-1/design.md §1.
  * Migration path: the public signature of `checkRateLimit` is the API; replacing
  * the Postgres backing with Redis is an internal swap of this file.
  */

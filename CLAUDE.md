@@ -29,8 +29,11 @@ Production runs on a Hetzner VPS via Docker Compose. See
 - **Auth**: NextAuth (Credentials provider) + TOTP 2FA
   (`bcryptjs`, `qrcode`)
 - **i18n**: `next-intl` v4 — locales `en`, `ca`, `es`, default `es`
-- **UI**: Tailwind v3 + Radix primitives (no shadcn/ui despite legacy
-  references in some files) + `class-variance-authority` + `tailwind-merge`
+- **UI**: Tailwind v3 + Radix primitives, `class-variance-authority`
+  and `tailwind-merge` for class composition. No shadcn/ui.
+- **Fonts**: Space Grotesk (body, `--font-sans`) + JetBrains Mono
+  (mono, `--font-mono`), both via `next/font/google` in
+  [src/app/layout.tsx](src/app/layout.tsx)
 - **Animation**: `framer-motion`
 - **Editor**: TipTap v3 (rich text, inline) + `@dnd-kit` (drag-reorder)
 - **Forms**: React Hook Form + Zod
@@ -39,11 +42,11 @@ Production runs on a Hetzner VPS via Docker Compose. See
 - **Tests**: Playwright (e2e only)
 - **Bundle output**: `output: "standalone"` for Docker
 
-Next 14 requires `next.config.mjs` (not `.ts`).
+Next config lives in `next.config.mjs`.
 
 ## Repo layout
 
-```
+```text
 src/
   app/
     [locale]/
@@ -99,7 +102,7 @@ Locale prefix is always present. `next-intl` middleware enforces this on
 public routes only (skipped for `/api`, `/admin`, `/dashboard`).
 
 | Route | Purpose |
-|---|---|
+| --- | --- |
 | `/[locale]` | Home |
 | `/[locale]/serveis` | Services index |
 | `/[locale]/serveis/[slug]` | Service detail |
@@ -111,8 +114,17 @@ public routes only (skipped for `/api`, `/admin`, `/dashboard`).
 | `/[locale]/labs` | Labs / resources |
 | `/[locale]/casos` | Case studies |
 | `/[locale]/avis-legal`, `/privacitat`, `/cookies` | Legal |
-| `/[locale]/[slug]` | **Catch-all** for CMS-authored pages — e.g.
-  `/automatitzacions-ia` resolves here when a `Page` exists with that slug |
+| `/[locale]/[slug]` | Dynamic single-segment route for CMS-authored pages |
+
+The dynamic `[slug]/page.tsx` is what serves CMS pages — e.g.
+`/automatitzacions-ia` resolves here because a `Page` exists with that
+slug across all 3 locales. (It is not a catch-all in the Next.js sense:
+it matches a single path segment, not nested paths.)
+
+`force-dynamic` is set explicitly on the routes that read DB content:
+`projectes/page.tsx`, `serveis/page.tsx`, `blog/page.tsx`,
+`blog/[slug]/page.tsx`, `[slug]/page.tsx`. Other public pages
+(home, sobre, contacte, labs, casos, legal) are not force-dynamic.
 
 There is **no** `/projectes/[slug]` public detail page on `main`. Project
 cards link only to the listing.
@@ -123,7 +135,7 @@ Protected by `middleware.ts` — requires `SUPERADMIN`/`ADMIN`/`EDITOR`. 2FA
 is mandatory for `SUPERADMIN`/`ADMIN`.
 
 | Route | Purpose |
-|---|---|
+| --- | --- |
 | `/admin` | Dashboard home |
 | `/admin/blog`, `/admin/blog/nou`, `/admin/blog/[id]` | Blog CRUD + editor |
 | `/admin/pagines`, `/admin/pagines/nova`, `/admin/pagines/[id]` | Pages CRUD + editor |
@@ -147,24 +159,41 @@ REST-style. `route.ts` per folder. Highlights:
 
 - `auth/[...nextauth]` — Credentials login
 - `blog/*`, `pages/*`, `services/*`, `projects/*` — content CRUD,
-  block subcollection, version history, schedule, publish
+  block subcollection, version history (`/versions[/v]`), schedule,
+  publish
+- `blog/slug/[slug]` — public lookup of a post by slug
+- `services/reorder` — drag-reorder support for `/admin/serveis`
 - `media/*` — list, upload (multipart, magic-byte validated), delete
 - `contacte` — public form submission
 - `admin/contact-submissions/*` — review submissions
 - `profile/*` — password change, 2FA setup/confirm/disable, GDPR export
   & delete
+- `factures`, `missatges` — client dashboard data
+- `og` — dynamic OG-image generation (`route.tsx`, JSX-based)
 - `cron/run-scheduled-publish` — internal endpoint, called by Hetzner
   crontab every 5 min with `Authorization: Bearer $CRON_SECRET`
 
-Auth helpers live in `src/lib/auth.ts` (NextAuth config) and
-`src/lib/authz.ts` (`requireAuth`, role checks). Rate limiting via the
-`RateLimit` Postgres table (`src/lib/rate-limit.ts`) — no Redis yet,
+Auth helpers live in:
+
+- [`src/lib/auth.ts`](src/lib/auth.ts) — NextAuth `authOptions`
+  (Credentials provider, JWT shape, callbacks)
+- [`src/lib/api-auth.ts`](src/lib/api-auth.ts) — `requireAuth(roles?)`
+  for API routes (returns `{error, session}` shape)
+- [`src/lib/auth-helpers.ts`](src/lib/auth-helpers.ts) — type-safe
+  wrappers around `getServerSession` so routes don't need
+  `as any` casts
+- [`src/lib/authz.ts`](src/lib/authz.ts) — `ADMIN_ROLES`, ownership
+  helpers (IDOR prevention) — see
+  `openspec/changes/archive/2026-05-06-security-week-1/specs/api/spec.md`
+
+Rate limiting via the `RateLimit` Postgres table
+([`src/lib/rate-limit.ts`](src/lib/rate-limit.ts)) — no Redis yet,
 trade-off documented in
-`openspec/changes/2026-05-06-security-week-1/design.md §1`.
+`openspec/changes/archive/2026-05-06-security-week-1/design.md §1`.
 
 ## Database
 
-15 Prisma models in `prisma/schema.prisma`:
+14 Prisma models in `prisma/schema.prisma`:
 
 - **`User`** — credentials, role enum (SUPERADMIN/ADMIN/EDITOR/CLIENT),
   2FA fields (`twoFactorSecret`, `twoFactorPendingSecret`,
@@ -173,10 +202,12 @@ trade-off documented in
   groups variants across locales, append-only versions
 - **`Page` / `PageVersion`** — locale-scoped, slug shared across locales
   (locale variants share the same slug; pages query siblings by `slug`)
-- **`Block`** — generic block, belongs to `Page` *or* `BlogPost`,
-  `(parent, order)` indexed
+- **`Block`** — generic block, belongs to `Page` *or* `BlogPost` via
+  nullable FKs (`pageId`, `blogPostId`); two indexes
+  `(pageId, order)` and `(blogPostId, order)`
 - **`Service`** — `@@unique([slug, locale])`
-- **`Project`** — `Project.owner → User`, locale-scoped
+- **`Project`** — `user User?` (nullable owner via `userId`),
+  locale-scoped (`@@unique([slug, locale])`)
 - **`Media`** — uploaded assets, indexed on `folder` and `mimeType`
 - **`Invoice`, `Message`** — client portal data
 - **`ContactSubmission`** — public form intake
@@ -208,8 +239,9 @@ Validated UX pattern — do not regress to slide-in panels. Lives under
 - **All other block types** edit via `BlockEditorForm` in the inspector
   "Bloc" tab. Block types: hero, features-grid, pricing, stats, rich-text,
   image, gallery, video, contact-form, cta, team-grid, testimonial,
-  accordion, logo-grid, code, divider, spacer (~17 types in
-  `src/components/blocks/`).
+  accordion, logo-grid, code, divider, spacer (17 types in
+  [`src/components/blocks/`](src/components/blocks/), plus
+  `block-renderer.tsx` which dispatches to the right one).
 - **Side-by-side multi-locale editing**: 3-col grid (canvas + canvas +
   inspector). `activeSide: 'left' | 'right'` tracks which variant the
   inspector drives. Pages query siblings by `slug`; blog by
@@ -257,7 +289,7 @@ The endpoint promotes rows where `publishAt <= now()` AND
 - GDPR: `/api/profile/delete` (anonymizes user) and `/api/profile/export`
   (JSON download).
 - File upload: magic-byte validation in `src/lib/file-type.ts`. Spec:
-  `openspec/changes/2026-05-06-security-week-1/design.md §4`.
+  `openspec/changes/archive/2026-05-06-security-week-1/design.md §4`.
 - Security headers configured in `next.config.mjs` (CSP, HSTS via
   `upgrade-insecure-requests` in prod only — Safari refuses
   `upgrade-insecure-requests` for localhost in dev).
@@ -268,8 +300,10 @@ The endpoint promotes rows where `publishAt <= now()` AND
 - Public routes: locale prefix always present (`/es/blog`, `/ca/serveis`).
 - Admin/dashboard: no locale prefix.
 - Translations: `messages/{en,ca,es}.json` (~42 KB each).
-- Use `next-intl`'s `Link` for internal nav to preserve locale; raw
-  `next/link` only when intentionally bypassing locale.
+- For internal nav in public routes, use `Link` from
+  [`@/i18n/navigation`](src/i18n/navigation.ts) — a `next-intl`
+  wrapper that auto-prefixes the active locale. Admin/dashboard use
+  plain `next/link` because those areas have no locale prefix.
 - Database content: `Page`/`BlogPost`/`Service` rows are locale-scoped.
   Pages share `slug` across locales; blog posts use `translationKey` to
   group locale variants (slugs differ per language by SEO design).
@@ -298,18 +332,21 @@ see [Operations](#operations).
 
 ## Operations
 
-Deployment, secrets, and DNS live outside this repo. Pointers (details in
-session memory):
+Full procedure in [docs/operations.md](docs/operations.md). On-server
+credential paths and SSH access are in session memory (`prod_access.md`)
+because they don't belong in the public repo.
 
-- **SSH host & deploy sequence** — see memory `deploy_target.md`. tldr:
-  Hetzner box, key at `~/.ssh/auratech-hetzner`, repo at
-  `/opt/auratech/repo`, compose at `/opt/auratech/docker-compose.yml`.
-- **Env sync** — `scripts/env-sync.sh {pull|push|diff|watch|bootstrap}`.
-  See memory `env_sync.md`. `.env` is gitignored. Hostnames live in
+- **Deploy sequence**: `git pull` in `/opt/auratech/repo`, then
+  `docker compose build backend && docker compose up -d backend` from
+  `/opt/auratech/`. Add `prisma migrate deploy` only when there's a new
+  migration.
+- **Env sync**: `scripts/env-sync.sh {pull|push|diff|watch|bootstrap}`
+  mirrors prod ↔ local. `.env` is gitignored. Hostnames live in
   `docker-compose.yml`, secrets live in `.env`.
-- **OVH DNS** — `auratech.cat` zone managed via OVH API; signed-call
-  snippet and credential pointers in memory `ovh_dns_api.md`.
-  **No code in this repo touches OVH** — DNS automation is operational.
+- **OVH DNS**: `auratech.cat` zone is managed via OVH API tokens stored
+  in `/opt/auratech/.env` on prod. **No code in this repo touches OVH**
+  — DNS is operational tooling, snippet in
+  [docs/operations.md](docs/operations.md).
 
 ### Prisma version pin gotcha
 
@@ -340,7 +377,8 @@ Always use `npx -y prisma@5.22.0` for migrate commands on prod.
 
 - **Background**: `hsl(225 15% 6%)` (deep dark with blue undertone)
 - **Accent**: `hsl(195 90% 55%)` (cyan/teal)
-- **Fonts**: Inter (body), JetBrains Mono (labels, technical details)
+- **Fonts**: Space Grotesk (body), JetBrains Mono (labels, technical
+  details). Both via `next/font/google` in `src/app/layout.tsx`.
 - **No serif fonts** (DM Serif Display was removed).
 - **Emphasis** via opacity contrast (`text-foreground/40`), not italic.
 - **Labels**: `font-mono text-[11px] tracking-[0.3em] uppercase
@@ -368,7 +406,7 @@ codebase.
 - No top-level `/projectes/[slug]` detail page (only listing).
 - No Vercel deploy — production is Docker on Hetzner.
 - No Redis (rate-limit uses Postgres). May change later — see
-  `openspec/changes/2026-05-06-security-week-1/design.md §1`.
+  `openspec/changes/archive/2026-05-06-security-week-1/design.md §1`.
 
 ## Pointers for further reading
 
@@ -378,4 +416,6 @@ codebase.
 - `openspec/specs/` — active specs (admin-dashboard, analytics, api,
   auth, block-editor, blog, client-portal, contact-system,
   content-blocks, content-models, …)
-- `openspec/changes/` — design docs for major changes
+- `openspec/changes/archive/` — design docs for completed changes
+  (active proposals, when any, would live in `openspec/changes/`
+  directly)
