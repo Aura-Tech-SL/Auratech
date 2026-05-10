@@ -1,100 +1,62 @@
-# Auratech Web
+# Auratech web
 
-Nova web corporativa i plataforma de clients d'Auratech, construïda amb Next.js 14, TypeScript i Tailwind CSS.
+Web corporativa i CMS d'Auratech (`auratech.cat`). Next.js 14 + Postgres,
+desplegada amb Docker Compose en un VPS de Hetzner.
 
-## Stack Tecnològic
+Combina **tres aplicacions** en un sol projecte:
 
-- **Framework**: Next.js 14 (App Router) + TypeScript
-- **Estils**: Tailwind CSS + shadcn/ui components
-- **Autenticació**: NextAuth.js
-- **Base de dades**: PostgreSQL + Prisma ORM
-- **Animacions**: Framer Motion
-- **Formularis**: React Hook Form + Zod
-- **Icons**: Lucide React
+- **Site públic** — i18n (CA / ES / EN), blog, projectes, serveis, contacte.
+- **CMS** (`/admin`) — editor de blocs estil WordPress amb publicació
+  programada, historial de versions i edició multi-idioma.
+- **Portal de clients** (`/dashboard`) — factures, missatges, projectes.
 
-## Prerequisits
-
-- Node.js 18+
-- PostgreSQL 14+
-- npm o pnpm
-
-## Instal·lació
+## Quick-start
 
 ```bash
-# 1. Instal·lar dependències
+# 1. Dependències
 npm install
 
-# 2. Configurar variables d'entorn
-cp .env.example .env
-# Edita .env amb les teves dades de connexió
+# 2. Postgres local
+docker compose up -d
 
-# 3. Generar client Prisma
-npx prisma generate
+# 3. Variables d'entorn (sincronitza amb prod)
+scripts/env-sync.sh bootstrap
 
-# 4. Crear taules a la base de dades
-npx prisma db push
+# 4. Base de dades
+npm run db:generate
+npm run db:migrate
+npm run db:seed         # opcional, dades de prova
 
-# 5. Seed de dades inicials
-npm run db:seed
-
-# 6. Iniciar servidor de desenvolupament
+# 5. Servidor de dev
 npm run dev
 ```
 
-## Credencials de prova
+App a `http://localhost:3000`. Admin a `http://localhost:3000/admin`.
 
-- **Admin**: admin@auratech.cat / admin123
-- **Client**: oscar.rovira@auratech.cat / client123
+## Documentació
 
-## Estructura del projecte
+- [`CLAUDE.md`](CLAUDE.md) — guia tècnica completa (stack, rutes, models,
+  convencions, decisions). Doc canònic.
+- [`docs/architecture.md`](docs/architecture.md) — arquitectura amb diagrames.
+- [`docs/cms.md`](docs/cms.md) — guia d'ús de l'admin per a editors.
+- [`docs/operations.md`](docs/operations.md) — desplegament, env, DNS.
 
-```
-src/
-├── app/
-│   ├── (public)/    → Pàgines públiques (Home, Serveis, Projectes, etc.)
-│   ├── (auth)/      → Login i Registre
-│   ├── dashboard/   → Àrea de clients
-│   ├── admin/       → Panel d'administració
-│   └── api/         → API Routes
-├── components/
-│   ├── ui/          → Components base (Button, Card, Input, etc.)
-│   ├── layout/      → Header, Footer, Sidebar
-│   ├── sections/    → Seccions de pàgines
-│   └── dashboard/   → Components del dashboard
-├── lib/
-│   ├── auth.ts      → Configuració NextAuth
-│   ├── db.ts        → Client Prisma
-│   ├── utils.ts     → Utilitats
-│   └── validations/ → Esquemes Zod
-└── types/           → TypeScript types
-```
-
-## Scripts disponibles
+## Scripts
 
 ```bash
-npm run dev          # Servidor de desenvolupament
-npm run build        # Build de producció
-npm run start        # Iniciar en producció
-npm run lint         # Linter
-npm run db:generate  # Generar client Prisma
-npm run db:push      # Sincronitzar schema amb BD
-npm run db:seed      # Seed de dades inicials
-npm run db:studio    # Prisma Studio (GUI de BD)
+npm run dev               # servidor de desenvolupament
+npm run build             # build de producció
+npm run start             # producció
+npm run lint              # ESLint
+npm run db:migrate        # nova migració local
+npm run db:migrate:deploy # aplicar migracions a prod / CI
+npm run db:seed           # seed de fixtures
+npm run db:studio         # Prisma Studio (GUI BD)
+npm run test:e2e          # tests Playwright
 ```
 
-## Desplegament
-
-### Vercel (recomanat)
-1. Connecta el repositori a Vercel
-2. Configura les variables d'entorn
-3. Vercel detectarà Next.js automàticament
-
-### Docker
-```bash
-docker build -t auratech-web .
-docker run -p 3000:3000 auratech-web
-```
+Operacions de servidor (deploy, env-sync, DNS) → [docs/operations.md](docs/operations.md).
 
 ## Llicència
 
-Privat - Auratech &copy; 2026
+Privat — Auratech SL © 2026
